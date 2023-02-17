@@ -1,0 +1,4762 @@
+{
+  "nodes": [
+    {
+      "typeId":"0",
+      "name":"Start",
+      "nodes":[],
+      "card":{
+         "name":"Start",
+         "group":"Endpoint Handler",
+         "typeId":"0",
+         "description":"Start node is used to start the execution of the endpoint handling service. It does not have any input link points and it has one output link point to trigger the successor nodes. It runs only once at the start of the service to trigger nodes that are connected to its output link point.",
+         "multiInput":false,
+         "multiOutput":false,
+         "errorManagement":false,
+         "inputs":[
+            
+         ],
+         "outputs":[
+            {
+               "name":"request",
+               "type":"object",
+               "description":"Input parameters of the start node. If the service is triggered through an endpoint, this output link point holds values for endpoint path ids, request headers, query string parameters, session object, uploaded files and request body."
+            }
+         ],
+         "config":[
+            {
+               "key":"body",
+               "name":"Request body",
+               "required":false,
+               "type":[
+                  "none",
+                  "single",
+                  "multi",
+                  "custom"
+               ],
+               "description":"Defines the body structure of the request",
+               "defaultValue":"none"
+            },
+            {
+               "key":"query",
+               "name":"Query string parameters",
+               "required":false,
+               "type":"list",
+               "description":"Query parameters fetched from endpoint query string"
+            },
+            {
+               "key":"header",
+               "name":"Request headers",
+               "required":false,
+               "type":"list",
+               "description":"List of request headers passed as HTTP header in request"
+            },
+            {
+               "key":"files",
+               "name":"File uploads",
+               "required":false,
+               "type":[
+                  "none",
+                  "object",
+                  "object-list"
+               ],
+               "description":"List of files passed in request body"
+            },
+            {
+               "key":"transactions",
+               "name":"Database transactions",
+               "required":false,
+               "type":"list",
+               "description":"List of database transaction that will be used by the service nodes during execution"
+            },
+            {
+               "key":"ids",
+               "name":"Object identifiers",
+               "required":false,
+               "type":"object",
+               "description":"Object ids that are fetched from endpoint path"
+            },
+            {
+               "key":"session",
+               "name":"Session object",
+               "required":false,
+               "type":"object",
+               "description":"The session object of the user calling the endpoint"
+            }
+         ]
+      }
+   },
+    {
+      "id": "Database",
+      "name": "Database",
+      "nodes": [
+        {
+          "typeId":"2",
+          "name": "Create Multi Objects",
+          "card": {
+            "typeId":"2",
+            "name": "Create Multi Objects",
+            "group": "Database - CRUD",
+            "description": "Validates the input objects and, if validated, creates the list of objects in the database. It runs when all the input link points are active. If successful, triggers the newly created list of objects (if return top model object enabled, triggers the updated top-level object in a list); otherwise triggers errors.",
+            "version": "v1.0.1",
+            "multiInput": true,
+            "multiOutput": false,
+            "restrictedInputTypes": ["list"],
+            "errorManagement": true,
+            "inputs": [
+              {
+                "name": "input",
+                "iname": "input",
+                "type": "list",
+                "description": "List of input objects that will be created in the database"
+              }
+            ],
+            "outputs": [
+              {
+                "name": "created",
+                "iname": "created",
+                "type": "list",
+                "description": "List of newly created objects"
+              },
+              {
+                "name": "errors",
+                "iname": "errors",
+                "type": "list",
+                "description": "Errors occurred during node execution",
+                "error": true,
+                "onDemand": true
+              }
+            ],
+            "config": [
+              {
+                "key": "modelName",
+                "name": "Created objects model",
+                "required": true,
+                "type": "select_model",
+                "defaultValue": null,
+                "showTransient": false,
+                "description": "The model of the objects that will be created in the database"
+              },
+              {
+                "key": "returnTopLevel",
+                "name": null,
+                "required": false,
+                "type": "toplevel_switch",
+                "on": "Yes",
+                "off": "No",
+                "defaultValue": false,
+                "description": null,
+                "action": "create-multi"
+              },
+              {
+                "key": "parentId",
+                "name": "Parent object id",
+                "required": false,
+                "type": "expression",
+                "defaultValue": null,
+                "props": {
+                  "returnFieldType": null,
+                  "returnType": [4],
+                  "returnTypeErrText": null,
+                  "showFunctions": true,
+                  "typeFilter": null,
+                  "showFavorites": false,
+                  "showHeader": false,
+                  "hideContext": ["transaction", "input"]
+                },
+                "description": "The id of the parent object under which the sub-object(s) will be created. <bold>Required when created objecta are sub-model objects.</bold>"
+              },
+              {
+                "key": "applyRules",
+                "name": "Apply rules",
+                "required": false,
+                "type": "applyrules_switch",
+                "on": "Yes",
+                "off": "No",
+                "defaultValue": true,
+                "description": "Enable/disabled execution of object level security rules that define the conditions to allow or restrict certain operations (create, read, upddate, delete) on your app database, storage and cache.",
+                "action": "create"
+              },
+              {
+                "key": "dbTransaction",
+                "name": "Database transaction",
+                "required": false,
+                "type": "expression",
+                "defaultValue": null,
+                "props": {
+                  "returnFieldType": null,
+                  "returnType": 5,
+                  "returnTypeErrText": "transaction object",
+                  "showFunctions": false,
+                  "typeFilter": null,
+                  "showFavorites": false,
+                  "showHeader": false,
+                  "hideContext": [],
+                  "onlySpecialInput": true
+                },
+                "description": "Transaction context that this database operation will execute in"
+              },
+              {
+                "key": "errorManagement",
+                "name": "Error management",
+                "required": true,
+                "type": "radiogroup",
+                "defaultValue": "auto",
+                "radios": [
+                  {
+                    "value": "auto",
+                    "label": "Automatic error handling",
+                    "disabled": false
+                  },
+                  {
+                    "value": "manual",
+                    "label": "Manual error handling",
+                    "disabled": false
+                  }
+                ],
+                "description": "Error handler type of processing errors raised by this node, either automatically or manually."
+              }
+            ]
+          }
+        },
+        {
+          "typeId": "3",
+          "name": "Create Single Object",
+          "card": {
+            "name": "Create Single Object",
+            "group": "Database - CRUD",
+            "typeId": "3",
+            "description": "Validates the input object and, if validated, creates the object in the database. If caching is enabled, it also caches the newly created object (if return top model object enabled, caches the updated top-level object) using its id as the cache key. It runs when all the input link points are active. If successful, triggers the newly created object (if return top model object enabled, triggers the updated top-level object); otherwise triggers errors.",
+            "version": "v1.0.1",
+            "multiInput": true,
+            "multiOutput": false,
+            "restrictedInputTypes": ["list"],
+            "errorManagement": true,
+            "inputs": [
+              {
+                "name": "input",
+                "iname": "input",
+                "type": "object",
+                "description": "Input object that will be created in the database"
+              }
+            ],
+            "outputs": [
+              {
+                "name": "created",
+                "iname": "created",
+                "type": "object",
+                "description": "Newly created object"
+              },
+              {
+                "name": "errors",
+                "iname": "errors",
+                "type": "list",
+                "description": "Errors occurred during node execution",
+                "error": true,
+                "onDemand": true
+              }
+            ],
+            "config": [
+              {
+                "key": "modelName",
+                "name": "Created object model",
+                "required": true,
+                "type": "select_model",
+                "defaultValue": null,
+                "showTransient": false,
+                "description": "The model of the object that will be created in the database"
+              },
+              {
+                "key": "returnTopLevel",
+                "name": null,
+                "required": false,
+                "type": "toplevel_switch",
+                "on": "Yes",
+                "off": "No",
+                "defaultValue": false,
+                "description": null,
+                "action": "create-single"
+              },
+              {
+                "key": "parentId",
+                "name": "Parent object id",
+                "required": false,
+                "type": "expression",
+                "defaultValue": null,
+                "props": {
+                  "returnFieldType": null,
+                  "returnType": [4],
+                  "returnTypeErrText": null,
+                  "showFunctions": true,
+                  "typeFilter": null,
+                  "showFavorites": false,
+                  "showHeader": false,
+                  "hideContext": ["transaction"]
+                },
+                "description": "The id of the parent object under which the sub-object(s) will be created. <bold>Required when the created object is a sub-model object.</bold>"
+              },
+              {
+                "key": "cache",
+                "name": "Cache created object",
+                "required": false,
+                "type": "select",
+                "defaultValue": -2,
+                "options": [
+                  {
+                    "key": -2,
+                    "name": "No caching"
+                  },
+                  {
+                    "key": -1,
+                    "name": "Cache with no expiry"
+                  },
+                  {
+                    "key": 900,
+                    "name": "Cache for 15 minutes"
+                  },
+                  {
+                    "key": 1800,
+                    "name": "Cache for 30 minutes"
+                  },
+                  {
+                    "key": 3600,
+                    "name": "Cache for 1 hour"
+                  },
+                  {
+                    "key": 21600,
+                    "name": "Cache for 6 hours"
+                  },
+                  {
+                    "key": 43200,
+                    "name": "Cache for 12 hours"
+                  },
+                  {
+                    "key": 86400,
+                    "name": "Cache for 1 day"
+                  },
+                  {
+                    "key": 604800,
+                    "name": "Cache for 1 week"
+                  },
+                  {
+                    "key": 18144000,
+                    "name": "Cache for 1 month"
+                  },
+                  {
+                    "key": 108864000,
+                    "name": "Cache for 6 months"
+                  },
+                  {
+                    "key": 220752000,
+                    "name": "Cache for 1 year"
+                  }
+                ],
+                "description": "Specify whether to <bold>cache the created object using its id as the cache key or not</bold>. If the object is cached and the timeout has expired, the cached object will automatically be removed from the cache."
+              },
+              {
+                "key": "applyRules",
+                "name": "Apply rules",
+                "required": false,
+                "type": "applyrules_switch",
+                "on": "Yes",
+                "off": "No",
+                "defaultValue": true,
+                "description": "Enable/disabled execution of object level security rules that define the conditions to allow or restrict certain operations (create, read, upddate, delete) on your app database, storage and cache.",
+                "action": "create"
+              },
+              {
+                "key": "dbTransaction",
+                "name": "Database transaction",
+                "required": false,
+                "type": "expression",
+                "defaultValue": null,
+                "props": {
+                  "returnFieldType": null,
+                  "returnType": 5,
+                  "returnTypeErrText": "transaction object",
+                  "showFunctions": false,
+                  "typeFilter": null,
+                  "showFavorites": false,
+                  "showHeader": false,
+                  "hideContext": [],
+                  "onlySpecialInput": true
+                },
+                "description": "Transaction context that this database operation will execute in"
+              },
+              {
+                "key": "errorManagement",
+                "name": "Error management",
+                "required": true,
+                "type": "radiogroup",
+                "defaultValue": "auto",
+                "radios": [
+                  {
+                    "value": "auto",
+                    "label": "Automatic error handling",
+                    "disabled": false
+                  },
+                  {
+                    "value": "manual",
+                    "label": "Manual error handling",
+                    "disabled": false
+                  }
+                ],
+                "description": "Error handler type of processing errors raised by this node, either automatically or manually."
+              }
+            ]
+          }
+        },
+        {
+          "typeId": "4",
+          "name": "Delete Multi Objects by Query",
+          "card": {
+            "name": "Delete Multi Objects by Query",
+            "group": "Database - CRUD",
+            "typeId": "4",
+            "description": "Deletes the objects matching the selection query in the database. It runs when all the input link points are active. If successful, triggers the deleteInfo; otherwise triggers errors.",
+            "multiInput": true,
+            "multiOutput": false,
+            "restrictedInputTypes": ["list"],
+            "errorManagement": true,
+            "inputs": [
+              {
+                "name": "input",
+                "iname": "input",
+                "type": "object",
+                "description": "Input object of the node, mainly used to specify the select query"
+              }
+            ],
+            "outputs": [
+              {
+                "name": "deleteInfo",
+                "iname": "deleteInfo",
+                "type": "object",
+                "description": "Delete operation info object, which holds total query match and total deleted objects count information"
+              },
+              {
+                "name": "errors",
+                "iname": "errors",
+                "type": "list",
+                "description": "Errors occurred during node execution",
+                "error": true,
+                "onDemand": true
+              }
+            ],
+            "config": [
+              {
+                "key": "modelName",
+                "name": "Deleted object model",
+                "required": true,
+                "type": "select_model",
+                "defaultValue": null,
+                "showTransient": false,
+                "description": "The model of the object that will be deleted from the database"
+              },
+              {
+                "key": "selectQuery",
+                "name": "Select query",
+                "required": true,
+                "type": "expression",
+                "defaultValue": null,
+                "ignoreTransient": false,
+                "props": {
+                  "returnFieldType": null,
+                  "returnType": 3,
+                  "returnTypeErrText": null,
+                  "showFunctions": true,
+                  "typeFilter": null,
+                  "showFavorites": false,
+                  "showHeader": false,
+                  "hideContext": ["transaction"]
+                },
+                "description": "The select query expression to find the objects that will be deleted",
+                "dbQuery": true
+              },
+              {
+                "key": "lookup",
+                "name": "Lookup fields",
+                "required": false,
+                "type": "select_field",
+                "defaultValue": [],
+                "selectType": "lookup-advanced",
+                "description": "The referenced object fields to perform a left outer join for processing"
+              },
+              {
+                "key": "applyRules",
+                "name": "Apply rules",
+                "required": false,
+                "type": "applyrules_switch",
+                "on": "Yes",
+                "off": "No",
+                "defaultValue": true,
+                "description": "Enable/disabled execution of object level security rules that define the conditions to allow or restrict certain operations (create, read, upddate, delete) on your app database, storage and cache.",
+                "action": "delete"
+              },
+              {
+                "key": "dbTransaction",
+                "name": "Database transaction",
+                "required": false,
+                "type": "expression",
+                "defaultValue": null,
+                "props": {
+                  "returnFieldType": null,
+                  "returnType": 5,
+                  "returnTypeErrText": "transaction object",
+                  "showFunctions": false,
+                  "typeFilter": null,
+                  "showFavorites": false,
+                  "showHeader": false,
+                  "hideContext": [],
+                  "onlySpecialInput": true
+                },
+                "description": "Transaction context that this database operation will execute in"
+              },
+              {
+                "key": "errorManagement",
+                "name": "Error management",
+                "required": true,
+                "type": "radiogroup",
+                "defaultValue": "auto",
+                "radios": [
+                  {
+                    "value": "auto",
+                    "label": "Automatic error handling",
+                    "disabled": false
+                  },
+                  {
+                    "value": "manual",
+                    "label": "Manual error handling",
+                    "disabled": false
+                  }
+                ],
+                "description": "Error handler type of processing errors raised by this node, either automatically or manually."
+              }
+            ]
+          }
+        },
+        {
+          "typeId": "5",
+          "name": "Delete Single Object by Id",
+          "card": {
+            "name": "Delete Single Object by Id",
+            "group": "Database - CRUD",
+            "typeId": "5",
+            "description": "Deletes the object in the database with the provided object id. If remove from cache selected, it removes the deleted object (if return top model object enabled, removes the updated top-level object) from the cache using its id as the cache key. It runs when all the input link points are active. If successful, it triggers success and updated object (if return top model object enabled); otherwise triggers errors.",
+            "version": "v1.0.1",
+            "multiInput": true,
+            "multiOutput": false,
+            "restrictedInputTypes": ["list"],
+            "errorManagement": true,
+            "onDemand": true,
+            "inputs": [
+              {
+                "name": "input",
+                "iname": "input",
+                "type": "object",
+                "description": "Input object of the node, mainly used to specify object id"
+              }
+            ],
+            "outputs": [
+              {
+                "name": "success",
+                "iname": "success",
+                "type": "trigger",
+                "description": "Successful delete operation trigger"
+              },
+              {
+                "name": "updated",
+                "iname": "updated",
+                "type": "object",
+                "description": "The updated top-level model object. When we remove a child sub-model object and select to get the return top-level model object, this output object propagates the updated top-level model object to connected nodes.",
+                "error": false,
+                "onDemand": true
+              },
+              {
+                "name": "errors",
+                "iname": "errors",
+                "type": "list",
+                "description": "Errors occurred during node execution",
+                "error": true,
+                "onDemand": true
+              }
+            ],
+            "config": [
+              {
+                "key": "modelName",
+                "name": "Deleted object model",
+                "required": true,
+                "type": "select_model",
+                "defaultValue": null,
+                "showTransient": false,
+                "description": "The model of the object that will be deleted from the database"
+              },
+              {
+                "key": "returnTopLevel",
+                "name": null,
+                "required": false,
+                "type": "toplevel_switch",
+                "on": "Yes",
+                "off": "No",
+                "defaultValue": false,
+                "description": null,
+                "action": "delete"
+              },
+              {
+                "key": "objectId",
+                "name": "Object id",
+                "required": true,
+                "type": "expression",
+                "defaultValue": null,
+                "props": {
+                  "returnFieldType": null,
+                  "returnType": [4],
+                  "returnTypeErrText": null,
+                  "showFunctions": true,
+                  "typeFilter": null,
+                  "showFavorites": false,
+                  "showHeader": false,
+                  "hideContext": ["transaction"]
+                },
+                "description": "The id of the object that will be deleted in the database."
+              },
+              {
+                "key": "cache",
+                "name": "Remove from cache",
+                "required": false,
+                "type": "checkbox",
+                "defaultValue": false,
+                "checkbox": {
+                  "value": "delete",
+                  "label": "Remove deleted object from cache using deleted object id as the cache key",
+                  "disabled": false
+                }
+              },
+              {
+                "key": "applyRules",
+                "name": "Apply rules",
+                "required": false,
+                "type": "applyrules_switch",
+                "on": "Yes",
+                "off": "No",
+                "defaultValue": true,
+                "description": "Enable/disabled execution of object level security rules that define the conditions to allow or restrict certain operations (create, read, upddate, delete) on your app database, storage and cache.",
+                "action": "delete"
+              },
+              {
+                "key": "dbTransaction",
+                "name": "Database transaction",
+                "required": false,
+                "type": "expression",
+                "defaultValue": null,
+                "props": {
+                  "returnFieldType": null,
+                  "returnType": 5,
+                  "returnTypeErrText": "transaction object",
+                  "showFunctions": false,
+                  "typeFilter": null,
+                  "showFavorites": false,
+                  "showHeader": false,
+                  "hideContext": [],
+                  "onlySpecialInput": true
+                },
+                "description": "Transaction context that this database operation will execute in"
+              },
+              {
+                "key": "errorManagement",
+                "name": "Error management",
+                "required": true,
+                "type": "radiogroup",
+                "defaultValue": "auto",
+                "radios": [
+                  {
+                    "value": "auto",
+                    "label": "Automatic error handling",
+                    "disabled": false
+                  },
+                  {
+                    "value": "manual",
+                    "label": "Manual error handling",
+                    "disabled": false
+                  }
+                ],
+                "description": "Error handler type of processing errors raised by this node, either automatically or manually."
+              }
+            ]
+          }
+        },
+        {
+          "typeId": "6",
+          "name": "Get Aggregate Results by Grouping",
+          "card": {
+            "name": "Get Aggregate Results by Grouping",
+            "group": "Database - CRUD",
+            "typeId": "6",
+            "description": "Retrieves a list of objects from the database matching the selection query, then groups these selected objects by the grouping expressions and performs the specified calculations on the grouped objects. It runs when all the input link points are active. If successful, triggers the result (computed expressions for each group) otherwise triggers errors.",
+            "version": "v1.0.1",
+            "multiInput": true,
+            "multiOutput": false,
+            "restrictedInputTypes": ["list"],
+            "errorManagement": true,
+            "onDemand": false,
+            "inputs": [
+              {
+                "name": "inputObject",
+                "iname": "inputObject",
+                "type": "object",
+                "description": "Input object of the node, mainly used to specify input parameters of the node"
+              }
+            ],
+            "outputs": [
+              {
+                "name": "result",
+                "iname": "result",
+                "type": "list",
+                "description": "Results of the grouping operation. For each group an object with the computed fields is returned."
+              },
+              {
+                "name": "errors",
+                "iname": "errors",
+                "type": "list",
+                "description": "Errors occurred during node execution",
+                "error": true,
+                "onDemand": true
+              }
+            ],
+            "config": [
+              {
+                "key": "modelName",
+                "name": "Grouped object model",
+                "required": true,
+                "type": "select_model",
+                "defaultValue": null,
+                "showTransient": false,
+                "description": "The model of the object that will be retrieved from the database for grouping"
+              },
+              {
+                "key": "selectQuery",
+                "name": "Select query",
+                "required": false,
+                "type": "expression",
+                "defaultValue": null,
+                "ignoreTransient": false,
+                "props": {
+                  "returnFieldType": null,
+                  "returnType": 3,
+                  "returnTypeErrText": null,
+                  "showFunctions": true,
+                  "typeFilter": null,
+                  "showFavorites": false,
+                  "showHeader": false,
+                  "hideContext": ["transaction"]
+                },
+                "description": "The select query expression to retrieve the list of objects from the database.",
+                "dbQuery": true
+              },
+              {
+                "key": "groupby",
+                "name": "Group by",
+                "required": true,
+                "type": "group_by",
+                "defaultValue": {
+                  "type": "none",
+                  "fields": [],
+                  "computations": [],
+                  "expression": null
+                },
+                "description": "The grouping method to apply on input objects for computations"
+              },
+              {
+                "key": "pageNumber",
+                "name": "Page number",
+                "required": false,
+                "type": "expression",
+                "defaultValue": "1",
+                "props": {
+                  "returnFieldType": null,
+                  "returnType": 1,
+                  "returnTypeErrText": null,
+                  "showFunctions": true,
+                  "typeFilter": null,
+                  "showFavorites": false,
+                  "showHeader": false,
+                  "hideContext": ["this", "transaction"]
+                },
+                "description": "Page number to paginate grouped results."
+              },
+              {
+                "key": "size",
+                "name": "Page size",
+                "required": false,
+                "type": "expression",
+                "defaultValue": "20",
+                "props": {
+                  "returnFieldType": null,
+                  "returnType": 1,
+                  "returnTypeErrText": null,
+                  "showFunctions": true,
+                  "typeFilter": null,
+                  "showFavorites": false,
+                  "showHeader": false,
+                  "hideContext": ["this", "transaction"]
+                },
+                "description": "Maximum number of items to fetch per page."
+              },
+              {
+                "key": "applyRules",
+                "name": "Apply rules",
+                "required": false,
+                "type": "applyrules_switch",
+                "on": "Yes",
+                "off": "No",
+                "defaultValue": true,
+                "description": "Enable/disabled execution of object level security rules that define the conditions to allow or restrict certain operations (create, read, upddate, delete) on your app database, storage and cache.",
+                "action": "read"
+              },
+              {
+                "key": "dbTransaction",
+                "name": "Database transaction",
+                "required": false,
+                "type": "expression",
+                "defaultValue": null,
+                "props": {
+                  "returnFieldType": null,
+                  "returnType": 5,
+                  "returnTypeErrText": "transaction object",
+                  "showFunctions": false,
+                  "typeFilter": null,
+                  "showFavorites": false,
+                  "showHeader": false,
+                  "hideContext": [],
+                  "onlySpecialInput": true
+                },
+                "description": "Transaction context that this database operation will execute in"
+              },
+              {
+                "key": "errorManagement",
+                "name": "Error management",
+                "required": true,
+                "type": "radiogroup",
+                "defaultValue": "auto",
+                "radios": [
+                  {
+                    "value": "auto",
+                    "label": "Automatic error handling",
+                    "disabled": false
+                  },
+                  {
+                    "value": "manual",
+                    "label": "Manual error handling",
+                    "disabled": false
+                  }
+                ],
+                "description": "Error handler type of processing errors raised by this node, either automatically or manually."
+              }
+            ]
+          }
+        },
+        {
+          "typeId": "1",
+          "name": "Get Multi Objects & Count by Query",
+          "card": {
+            "name": "Get Multi Objects & Count by Query",
+            "group": "Database - CRUD",
+            "typeId": "1",
+            "description": "Retrieves a list of objects and their count and pagination information from the database matching the selection query. It runs when all the input link points are active. If successful, triggers the result and countInfo otherwise triggers errors.",
+            "version": "v1.0.0",
+            "multiInput": true,
+            "multiOutput": false,
+            "restrictedInputTypes": ["list"],
+            "errorManagement": true,
+            "inputs": [
+              {
+                "name": "inputObject",
+                "iname": "inputObject",
+                "type": "object",
+                "description": "Input object of the node, mainly used to specify selection filter"
+              }
+            ],
+            "outputs": [
+              {
+                "name": "result",
+                "type": "list",
+                "description": "List of objects retrieved from the database"
+              },
+              {
+                "name": "countInfo",
+                "type": "object",
+                "description": "Query result count info object, which holds total objects count matching the query condition, total pages, current page, and page size information"
+              },
+              {
+                "name": "errors",
+                "type": "list",
+                "description": "Errors occurred during node execution",
+                "error": true,
+                "onDemand": true
+              }
+            ],
+            "config": [
+              {
+                "key": "modelNames",
+                "name": "Retrieved object model",
+                "required": true,
+                "type": "select_model",
+                "defaultValue": null,
+                "showTransient": false,
+                "description": "The model of the object that will be retrieved from the database"
+              },
+              {
+                "key": "selectQueryTextExp",
+                "name": "Select query text expression",
+                "required": false,
+                "type": "expression",
+                "defaultValue": null,
+                "props": {
+                  "returnFieldType": null,
+                  "returnType": [4],
+                  "returnTypeErrText": null,
+                  "showFunctions": true,
+                  "typeFilter": null,
+                  "showFavorites": false,
+                  "showHeader": false,
+                  "hideContext": ["this", "transaction"]
+                },
+                "description": "The select query text expression enables you to specify the select query as a parameter. If the select query text expression is specified, it overrides the values specified in the select query below. This expression should return a text value that is used as the query expression."
+              },
+              {
+                "key": "selectQuery",
+                "name": "Select query",
+                "required": false,
+                "type": "expression",
+                "defaultValue": null,
+                "ignoreTransient": false,
+                "props": {
+                  "returnFieldType": null,
+                  "returnType": 3,
+                  "returnTypeErrText": null,
+                  "showFunctions": true,
+                  "typeFilter": null,
+                  "showFavorites": false,
+                  "showHeader": false,
+                  "hideContext": ["transaction"]
+                },
+                "description": "The select query expression to retrieve the list of objects from the database.",
+                "dbQuery": true
+              },
+              {
+                "key": "sortExp",
+                "name": "Sort expression",
+                "required": false,
+                "type": "expression",
+                "defaultValue": null,
+                "props": {
+                  "returnFieldType": null,
+                  "returnType": [4, 5],
+                  "returnTypeErrText": "sort fields or list of sort fields",
+                  "showFunctions": true,
+                  "typeFilter": null,
+                  "showFavorites": false,
+                  "showHeader": false,
+                  "hideContext": ["this", "transaction"]
+                },
+                "description": "The sort fields expression enables you to specify the sort direction as a parameter. If the sort expression is specified, it overrides the values specified in the sort fields below. This expression should either returns a text value (e.g., \"fieldName:asc\") or an array of text values (e.g., [\"fieldName1:asc\", \"fieldName2:desc\"])."
+              },
+              {
+                "key": "sort",
+                "name": "Sort fields",
+                "required": false,
+                "type": "select_sort_field",
+                "defaultValue": [],
+                "description": "The list of model fields to use for sorting the query results"
+              },
+              {
+                "key": "lookup",
+                "name": "Lookup fields",
+                "required": false,
+                "type": "select_field",
+                "defaultValue": [],
+                "selectType": "lookup-advanced",
+                "description": "The referenced object fields to perform a left outer join for processing"
+              },
+              {
+                "key": "pageNumber",
+                "name": "Page number",
+                "required": false,
+                "type": "expression",
+                "defaultValue": "1",
+                "props": {
+                  "returnFieldType": null,
+                  "returnType": 1,
+                  "returnTypeErrText": null,
+                  "showFunctions": true,
+                  "typeFilter": null,
+                  "showFavorites": false,
+                  "showHeader": false,
+                  "hideContext": ["this", "transaction"]
+                },
+                "description": "Page number to paginate query results."
+              },
+              {
+                "key": "size",
+                "name": "Page size",
+                "required": false,
+                "type": "expression",
+                "defaultValue": "20",
+                "props": {
+                  "returnFieldType": null,
+                  "returnType": 1,
+                  "returnTypeErrText": null,
+                  "showFunctions": true,
+                  "typeFilter": null,
+                  "showFavorites": false,
+                  "showHeader": false,
+                  "hideContext": ["this", "transaction"]
+                },
+                "description": "Maximum number of items to fetch per page."
+              },
+              {
+                "key": "applyRules",
+                "name": "Apply rules",
+                "required": false,
+                "type": "applyrules_switch",
+                "on": "Yes",
+                "off": "No",
+                "defaultValue": true,
+                "description": "Enable/disabled execution of object level security rules that define the conditions to allow or restrict certain operations (create, read, upddate, delete) on your app database, storage and cache.",
+                "action": "read"
+              },
+              {
+                "key": "dbTransaction",
+                "name": "Database transaction",
+                "required": false,
+                "type": "expression",
+                "defaultValue": null,
+                "props": {
+                  "returnFieldType": null,
+                  "returnType": 5,
+                  "returnTypeErrText": "transaction object",
+                  "showFunctions": false,
+                  "typeFilter": null,
+                  "showFavorites": false,
+                  "showHeader": false,
+                  "hideContext": [],
+                  "onlySpecialInput": true
+                },
+                "description": "Transaction context that this database operation will execute in"
+              },
+              {
+                "key": "errorManagement",
+                "name": "Error management",
+                "required": true,
+                "type": "radiogroup",
+                "defaultValue": "auto",
+                "radios": [
+                  {
+                    "value": "auto",
+                    "label": "Automatic error handling",
+                    "disabled": false
+                  },
+                  {
+                    "value": "manual",
+                    "label": "Manual error handling",
+                    "disabled": false
+                  }
+                ],
+                "description": "Error handler type of processing errors raised by this node, either automatically or manually."
+              }
+            ]
+          }
+        },
+        {
+          "typeId": "7",
+          "name": "Get Multi Objects by Full-Text Search",
+          "card": {
+            "name": "Get Multi Objects by Full-Text Search",
+            "group": "Database - CRUD",
+            "typeId": "7",
+            "description": "Retrieves a list of objects from the database running first the full-text (fuzzy) search and then applying the filter query to narrow down the results. It runs when all the input link points are active. If successful, triggers the result otherwise triggers errors.",
+            "version": "v1.0.0",
+            "multiInput": true,
+            "multiOutput": false,
+            "restrictedInputTypes": ["list"],
+            "errorManagement": true,
+            "onDemand": true,
+            "inputs": [
+              {
+                "name": "inputObject",
+                "iname": "inputObject",
+                "type": "object",
+                "description": "Input object of the node, mainly used to specify selection filter"
+              }
+            ],
+            "outputs": [
+              {
+                "name": "result",
+                "iname": "result",
+                "type": "list",
+                "description": "List of objects retrieved from the database"
+              },
+              {
+                "name": "countInfo",
+                "iname": "countInfo",
+                "type": "object",
+                "description": "Query result count info object, which holds total objects count matching the query condition, total pages, current page, and page size information",
+                "error": false,
+                "onDemand": true
+              },
+              {
+                "name": "errors",
+                "iname": "errors",
+                "type": "list",
+                "description": "Errors occurred during node execution",
+                "error": true,
+                "onDemand": true
+              }
+            ],
+            "config": [
+              {
+                "key": "modelName",
+                "name": "Retrieved object model",
+                "required": true,
+                "type": "select_model_top",
+                "defaultValue": null,
+                "showTransient": false,
+                "description": "The model of the object that will be retrieved from the database"
+              },
+              {
+                "key": "ftsFieldiname",
+                "name": "Full-text search field",
+                "required": true,
+                "type": "select_fts_field",
+                "defaultValue": null,
+                "description": "The full-text search indexed field to run the search query on"
+              },
+              {
+                "key": "searchTextExp",
+                "name": "Search text",
+                "required": true,
+                "type": "expression",
+                "defaultValue": null,
+                "props": {
+                  "returnFieldType": null,
+                  "returnType": 4,
+                  "returnTypeErrText": null,
+                  "showFunctions": true,
+                  "typeFilter": null,
+                  "showFavorites": false,
+                  "showHeader": false,
+                  "hideContext": ["this", "transaction"]
+                },
+                "description": "A string of terms that are used to query the data model objects."
+              },
+              {
+                "key": "selectQuery",
+                "name": "Additional select query",
+                "required": false,
+                "type": "expression",
+                "defaultValue": null,
+                "ignoreTransient": false,
+                "props": {
+                  "returnFieldType": null,
+                  "returnType": 3,
+                  "returnTypeErrText": null,
+                  "showFunctions": true,
+                  "typeFilter": null,
+                  "showFavorites": false,
+                  "showHeader": false,
+                  "hideContext": ["transaction"]
+                },
+                "description": "Following the search of model objects in database, the select query expression is used to further filter the list of objects retrieved from the database.",
+                "dbQuery": true
+              },
+              {
+                "key": "lookup",
+                "name": "Lookup fields",
+                "required": false,
+                "type": "select_field",
+                "defaultValue": [],
+                "selectType": "lookup-advanced",
+                "description": "The referenced object fields to perform a left outer join for processing"
+              },
+              {
+                "key": "pageNumber",
+                "name": "Page number",
+                "required": false,
+                "type": "expression",
+                "defaultValue": "1",
+                "props": {
+                  "returnFieldType": null,
+                  "returnType": 1,
+                  "returnTypeErrText": null,
+                  "showFunctions": true,
+                  "typeFilter": null,
+                  "showFavorites": false,
+                  "showHeader": false,
+                  "hideContext": ["this", "transaction"]
+                },
+                "description": "Page number to paginate query results."
+              },
+              {
+                "key": "size",
+                "name": "Page size",
+                "required": false,
+                "type": "expression",
+                "defaultValue": "20",
+                "props": {
+                  "returnFieldType": null,
+                  "returnType": 1,
+                  "returnTypeErrText": null,
+                  "showFunctions": true,
+                  "typeFilter": null,
+                  "showFavorites": false,
+                  "showHeader": false,
+                  "hideContext": ["this", "transaction"]
+                },
+                "description": "Maximum number of items to fetch per page."
+              },
+              {
+                "key": "applyRules",
+                "name": "Apply rules",
+                "required": false,
+                "type": "applyrules_switch",
+                "on": "Yes",
+                "off": "No",
+                "defaultValue": true,
+                "description": "Enable/disabled execution of object level security rules that define the conditions to allow or restrict certain operations (create, read, upddate, delete) on your app database, storage and cache.",
+                "action": "read"
+              },
+              {
+                "key": "dbTransaction",
+                "name": "Database transaction",
+                "required": false,
+                "type": "expression",
+                "defaultValue": null,
+                "props": {
+                  "returnFieldType": null,
+                  "returnType": 5,
+                  "returnTypeErrText": "transaction object",
+                  "showFunctions": false,
+                  "typeFilter": null,
+                  "showFavorites": false,
+                  "showHeader": false,
+                  "hideContext": ["this"],
+                  "onlySpecialInput": true
+                },
+                "description": "Transaction context that this database operation will execute in"
+              },
+              {
+                "key": "errorManagement",
+                "name": "Error management",
+                "required": true,
+                "type": "radiogroup",
+                "defaultValue": "auto",
+                "radios": [
+                  {
+                    "value": "auto",
+                    "label": "Automatic error handling",
+                    "disabled": false
+                  },
+                  {
+                    "value": "manual",
+                    "label": "Manual error handling",
+                    "disabled": false
+                  }
+                ],
+                "description": "Error handler type of processing errors raised by this node, either automatically or manually."
+              }
+            ]
+          }
+        },
+        {
+          "typeId": "8",
+          "name": "Get Multi Objects by Query",
+          "card": {
+            "name": "Get Multi Objects by Query",
+            "group": "Database - CRUD",
+            "typeId": "6122a11539f863c10979aca0",
+            "description": "Retrieves a list of objects from the database matching the selection query. It runs when all the input link points are active. If successful, triggers the result and countInfo (if selected) otherwise triggers errors.",
+            "version": "v1.0.1",
+            "multiInput": true,
+            "multiOutput": false,
+            "restrictedInputTypes": ["list"],
+            "errorManagement": true,
+            "onDemand": true,
+            "inputs": [
+              {
+                "name": "inputObject",
+                "iname": "inputObject",
+                "type": "object",
+                "description": "Input object of the node, mainly used to specify selection filter"
+              }
+            ],
+            "outputs": [
+              {
+                "name": "result",
+                "iname": "result",
+                "type": "list",
+                "description": "List of objects retrieved from the database"
+              },
+              {
+                "name": "countInfo",
+                "iname": "countInfo",
+                "type": "object",
+                "description": "Query result count info object, which holds total objects count matching the query condition, total pages, current page, and page size information",
+                "error": false,
+                "onDemand": true
+              },
+              {
+                "name": "errors",
+                "iname": "errors",
+                "type": "list",
+                "description": "Errors occurred during node execution",
+                "error": true,
+                "onDemand": true
+              }
+            ],
+            "config": [
+              {
+                "key": "modelName",
+                "name": "Retrieved object model",
+                "required": true,
+                "type": "select_model",
+                "defaultValue": null,
+                "showTransient": false,
+                "description": "The model of the object that will be retrieved from the database"
+              },
+              {
+                "key": "selectQuery",
+                "name": "Select query",
+                "required": false,
+                "type": "expression",
+                "defaultValue": null,
+                "ignoreTransient": false,
+                "props": {
+                  "returnFieldType": null,
+                  "returnType": 3,
+                  "returnTypeErrText": null,
+                  "showFunctions": true,
+                  "typeFilter": null,
+                  "showFavorites": false,
+                  "showHeader": false,
+                  "hideContext": ["transaction"]
+                },
+                "description": "The select query expression to retrieve the list of objects from the database.",
+                "dbQuery": true
+              },
+              {
+                "key": "sortExp",
+                "name": "Sort expression",
+                "required": false,
+                "type": "expression",
+                "defaultValue": null,
+                "props": {
+                  "returnFieldType": null,
+                  "returnType": [4, 5],
+                  "returnTypeErrText": "sort fields or list of sort fields",
+                  "showFunctions": true,
+                  "typeFilter": null,
+                  "showFavorites": false,
+                  "showHeader": false,
+                  "hideContext": ["this", "transaction"]
+                },
+                "description": "The sort fields expression enables you to specify the sort direction as a parameter. If the sort expression is specified, it overrides the values specified in the sort fields below. This expression should either returns a text value (e.g., \"fieldName:asc\") or an array of text values (e.g., [\"fieldName1:asc\", \"fieldName2:desc\"])."
+              },
+              {
+                "key": "sort",
+                "name": "Sort fields",
+                "required": false,
+                "type": "select_sort_field",
+                "defaultValue": [],
+                "description": "The list of model fields to use for sorting the query results"
+              },
+              {
+                "key": "lookup",
+                "name": "Lookup fields",
+                "required": false,
+                "type": "select_field",
+                "defaultValue": [],
+                "selectType": "lookup-advanced",
+                "description": "The referenced object fields to perform a left outer join for processing"
+              },
+              {
+                "key": "pageNumber",
+                "name": "Page number",
+                "required": false,
+                "type": "expression",
+                "defaultValue": "1",
+                "props": {
+                  "returnFieldType": null,
+                  "returnType": 1,
+                  "returnTypeErrText": null,
+                  "showFunctions": true,
+                  "typeFilter": null,
+                  "showFavorites": false,
+                  "showHeader": false,
+                  "hideContext": ["this", "transaction"]
+                },
+                "description": "Page number to paginate query results."
+              },
+              {
+                "key": "size",
+                "name": "Page size",
+                "required": false,
+                "type": "expression",
+                "defaultValue": "20",
+                "props": {
+                  "returnFieldType": null,
+                  "returnType": 1,
+                  "returnTypeErrText": null,
+                  "showFunctions": true,
+                  "typeFilter": null,
+                  "showFavorites": false,
+                  "showHeader": false,
+                  "hideContext": ["this", "transaction"]
+                },
+                "description": "Maximum number of items to fetch per page."
+              },
+              {
+                "key": "count",
+                "name": "Return count info",
+                "required": false,
+                "type": "switch",
+                "on": "Yes",
+                "off": "No",
+                "defaultValue": false,
+                "description": "Flag to show/hide count info output link point."
+              },
+              {
+                "key": "applyRules",
+                "name": "Apply rules",
+                "required": false,
+                "type": "applyrules_switch",
+                "on": "Yes",
+                "off": "No",
+                "defaultValue": true,
+                "description": "Enable/disabled execution of object level security rules that define the conditions to allow or restrict certain operations (create, read, upddate, delete) on your app database, storage and cache.",
+                "action": "read"
+              },
+              {
+                "key": "dbTransaction",
+                "name": "Database transaction",
+                "required": false,
+                "type": "expression",
+                "defaultValue": null,
+                "props": {
+                  "returnFieldType": null,
+                  "returnType": 5,
+                  "returnTypeErrText": "transaction object",
+                  "showFunctions": false,
+                  "typeFilter": null,
+                  "showFavorites": false,
+                  "showHeader": false,
+                  "hideContext": ["this"],
+                  "onlySpecialInput": true
+                },
+                "description": "Transaction context that this database operation will execute in"
+              },
+              {
+                "key": "errorManagement",
+                "name": "Error management",
+                "required": true,
+                "type": "radiogroup",
+                "defaultValue": "auto",
+                "radios": [
+                  {
+                    "value": "auto",
+                    "label": "Automatic error handling",
+                    "disabled": false
+                  },
+                  {
+                    "value": "manual",
+                    "label": "Manual error handling",
+                    "disabled": false
+                  }
+                ],
+                "description": "Error handler type of processing errors raised by this node, either automatically or manually."
+              }
+            ]
+          }
+        },
+        {
+          "typeId": "9",
+          "name": "Get Multi Objects by Text Search",
+          "card": {
+            "name": "Get Multi Objects by Text Search",
+            "group": "Database - CRUD",
+            "typeId": "9",
+            "description": "Retrieves a list of objects from the database running first the text search and then applying the filter query to narrow down the results. The retrieved objects are sorted automatically in terms of the scores of the text search results. It runs when all the input link points are active. If successful, triggers the result and countInfo (if selected) otherwise triggers errors.",
+            "version": "v1.0.1",
+            "multiInput": true,
+            "multiOutput": false,
+            "restrictedInputTypes": ["list"],
+            "errorManagement": true,
+            "onDemand": true,
+            "inputs": [
+              {
+                "name": "inputObject",
+                "iname": "inputObject",
+                "type": "object",
+                "description": "Input object of the node, mainly used to specify selection filter"
+              }
+            ],
+            "outputs": [
+              {
+                "name": "result",
+                "iname": "result",
+                "type": "list",
+                "description": "List of objects retrieved from the database"
+              },
+              {
+                "name": "countInfo",
+                "iname": "countInfo",
+                "type": "object",
+                "description": "Query result count info object, which holds total objects count matching the query condition, total pages, current page, and page size information",
+                "error": false,
+                "onDemand": true
+              },
+              {
+                "name": "errors",
+                "iname": "errors",
+                "type": "list",
+                "description": "Errors occurred during node execution",
+                "error": true,
+                "onDemand": true
+              }
+            ],
+            "config": [
+              {
+                "key": "modelName",
+                "name": "Retrieved object model",
+                "required": true,
+                "type": "select_model",
+                "defaultValue": null,
+                "showTransient": false,
+                "description": "The model of the object that will be retrieved from the database"
+              },
+              {
+                "key": "searchTextExp",
+                "name": "Search text",
+                "required": true,
+                "type": "expression",
+                "defaultValue": null,
+                "props": {
+                  "returnFieldType": null,
+                  "returnType": 4,
+                  "returnTypeErrText": null,
+                  "showFunctions": true,
+                  "typeFilter": null,
+                  "showFavorites": false,
+                  "showHeader": false,
+                  "hideContext": ["this", "transaction"]
+                },
+                "description": "A string of terms that are used to query the data model objects. This node performs a logical OR search of the terms unless specified as a phrase."
+              },
+              {
+                "key": "selectQuery",
+                "name": "Additional select query",
+                "required": false,
+                "type": "expression",
+                "defaultValue": null,
+                "ignoreTransient": false,
+                "props": {
+                  "returnFieldType": null,
+                  "returnType": 3,
+                  "returnTypeErrText": null,
+                  "showFunctions": true,
+                  "typeFilter": null,
+                  "showFavorites": false,
+                  "showHeader": false,
+                  "hideContext": ["transaction"]
+                },
+                "description": "Following the search of model objects in database, the select query expression is used to further filter the list of objects retrieved from the database.",
+                "dbQuery": true
+              },
+              {
+                "key": "lookup",
+                "name": "Lookup fields",
+                "required": false,
+                "type": "select_field",
+                "defaultValue": [],
+                "selectType": "lookup-advanced",
+                "description": "The referenced object fields to perform a left outer join for processing"
+              },
+              {
+                "key": "pageNumber",
+                "name": "Page number",
+                "required": false,
+                "type": "expression",
+                "defaultValue": "1",
+                "props": {
+                  "returnFieldType": null,
+                  "returnType": 1,
+                  "returnTypeErrText": null,
+                  "showFunctions": true,
+                  "typeFilter": null,
+                  "showFavorites": false,
+                  "showHeader": false,
+                  "hideContext": ["this", "transaction"]
+                },
+                "description": "Page number to paginate query results."
+              },
+              {
+                "key": "size",
+                "name": "Page size",
+                "required": false,
+                "type": "expression",
+                "defaultValue": "20",
+                "props": {
+                  "returnFieldType": null,
+                  "returnType": 1,
+                  "returnTypeErrText": null,
+                  "showFunctions": true,
+                  "typeFilter": null,
+                  "showFavorites": false,
+                  "showHeader": false,
+                  "hideContext": ["this", "transaction"]
+                },
+                "description": "Maximum number of items to fetch per page."
+              },
+              {
+                "key": "count",
+                "name": "Return count info",
+                "required": false,
+                "type": "switch",
+                "on": "Yes",
+                "off": "No",
+                "defaultValue": false,
+                "description": "Flag to show/hide count info output link point."
+              },
+              {
+                "key": "applyRules",
+                "name": "Apply rules",
+                "required": false,
+                "type": "applyrules_switch",
+                "on": "Yes",
+                "off": "No",
+                "defaultValue": true,
+                "description": "Enable/disabled execution of object level security rules that define the conditions to allow or restrict certain operations (create, read, upddate, delete) on your app database, storage and cache.",
+                "action": "read"
+              },
+              {
+                "key": "dbTransaction",
+                "name": "Database transaction",
+                "required": false,
+                "type": "expression",
+                "defaultValue": null,
+                "props": {
+                  "returnFieldType": null,
+                  "returnType": 5,
+                  "returnTypeErrText": "transaction object",
+                  "showFunctions": false,
+                  "typeFilter": null,
+                  "showFavorites": false,
+                  "showHeader": false,
+                  "hideContext": ["this"],
+                  "onlySpecialInput": true
+                },
+                "description": "Transaction context that this database operation will execute in"
+              },
+              {
+                "key": "errorManagement",
+                "name": "Error management",
+                "required": true,
+                "type": "radiogroup",
+                "defaultValue": "auto",
+                "radios": [
+                  {
+                    "value": "auto",
+                    "label": "Automatic error handling",
+                    "disabled": false
+                  },
+                  {
+                    "value": "manual",
+                    "label": "Manual error handling",
+                    "disabled": false
+                  }
+                ],
+                "description": "Error handler type of processing errors raised by this node, either automatically or manually."
+              }
+            ]
+          }
+        },
+        {
+          "typeId": "10",
+          "name": "Get Multi Objects Randomly",
+          "card": {
+            "name": "Get Multi Objects Randomly",
+            "group": "Database - CRUD",
+            "typeId": "10",
+            "description": "Retrieves specified number of objects from the database randomly. It runs when the input link points is active. If successful, triggers the output list.",
+            "multiInput": true,
+            "multiOutput": false,
+            "restrictedInputTypes": ["list"],
+            "errorManagement": true,
+            "onDemand": false,
+            "inputs": [
+              {
+                "name": "input",
+                "iname": "input",
+                "type": "object",
+                "description": "Input object of the node, mainly used to specify size parameter"
+              }
+            ],
+            "outputs": [
+              {
+                "name": "output",
+                "iname": "output",
+                "type": "list",
+                "description": "List of objects randomly retrieved from the database"
+              },
+              {
+                "name": "errors",
+                "iname": "errors",
+                "type": "list",
+                "description": "Errors occurred during node execution",
+                "error": true,
+                "onDemand": true
+              }
+            ],
+            "config": [
+              {
+                "key": "modelName",
+                "name": "Retrieved object model",
+                "required": true,
+                "type": "select_model",
+                "defaultValue": null,
+                "showTransient": false,
+                "description": "The model of the object that will be retrieved from the database"
+              },
+              {
+                "key": "selectQuery",
+                "name": "Select query",
+                "required": false,
+                "type": "expression",
+                "defaultValue": null,
+                "ignoreTransient": false,
+                "props": {
+                  "returnFieldType": null,
+                  "returnType": 3,
+                  "returnTypeErrText": null,
+                  "showFunctions": true,
+                  "typeFilter": null,
+                  "showFavorites": false,
+                  "showHeader": false,
+                  "hideContext": ["transaction"]
+                },
+                "description": "The select query expression to retrieve the list of objects from the database.",
+                "dbQuery": true
+              },
+              {
+                "key": "size",
+                "name": "Size",
+                "required": false,
+                "type": "expression",
+                "defaultValue": "20",
+                "props": {
+                  "returnFieldType": null,
+                  "returnType": 1,
+                  "returnTypeErrText": null,
+                  "showFunctions": true,
+                  "typeFilter": null,
+                  "showFavorites": false,
+                  "showHeader": false,
+                  "hideContext": ["this", "transaction"]
+                },
+                "description": "Number of items to randomly select."
+              },
+              {
+                "key": "lookup",
+                "name": "Lookup fields",
+                "required": false,
+                "type": "select_field",
+                "defaultValue": [],
+                "selectType": "lookup-advanced",
+                "description": "The referenced object fields to perform a left outer join for processing"
+              },
+              {
+                "key": "applyRules",
+                "name": "Apply rules",
+                "required": false,
+                "type": "applyrules_switch",
+                "on": "Yes",
+                "off": "No",
+                "defaultValue": true,
+                "description": "Enable/disabled execution of object level security rules that define the conditions to allow or restrict certain operations (create, read, upddate, delete) on your app database, storage and cache.",
+                "action": "read"
+              },
+              {
+                "key": "dbTransaction",
+                "name": "Database transaction",
+                "required": false,
+                "type": "expression",
+                "defaultValue": null,
+                "props": {
+                  "returnFieldType": null,
+                  "returnType": 5,
+                  "returnTypeErrText": "transaction object",
+                  "showFunctions": false,
+                  "typeFilter": null,
+                  "showFavorites": false,
+                  "showHeader": false,
+                  "hideContext": [],
+                  "onlySpecialInput": true
+                },
+                "description": "Transaction context that this database operation will execute in"
+              },
+              {
+                "key": "errorManagement",
+                "name": "Error management",
+                "required": true,
+                "type": "radiogroup",
+                "defaultValue": "auto",
+                "radios": [
+                  {
+                    "value": "auto",
+                    "label": "Automatic error handling",
+                    "disabled": false
+                  },
+                  {
+                    "value": "manual",
+                    "label": "Manual error handling",
+                    "disabled": false
+                  }
+                ],
+                "description": "Error handler type of processing errors raised by this node, either automatically or manually."
+              }
+            ]
+          }
+        },
+        {
+          "typeId": "11",
+          "name": "Get Single Object by Id",
+          "card": {
+            "name": "Get Single Object by Id",
+            "group": "Database - CRUD",
+            "typeId": "11",
+            "description": "Retrieves a single object from the database matching the object id. If caching is enabled first checks the cache using the id of the object as the cache key and if an object is found in the cache, returns the cached object. If no cached object is found, then returns the object from the database and caches the retrieved object. It runs when all the input link points are active. If successful, triggers found otherwise triggers notFound.",
+            "version": "v1.0.1",
+            "multiInput": true,
+            "multiOutput": false,
+            "restrictedInputTypes": ["list"],
+            "errorManagement": true,
+            "inputs": [
+              {
+                "name": "inputObject",
+                "iname": "inputObject",
+                "type": "object",
+                "description": "Input object of the node, mainly used to specify selection filter"
+              }
+            ],
+            "outputs": [
+              {
+                "name": "found",
+                "iname": "found",
+                "type": "object",
+                "description": "Object retrieved from the database"
+              },
+              {
+                "name": "notFound",
+                "iname": "notFound",
+                "type": "object",
+                "description": "Object not found trigger, returns the input object"
+              },
+              {
+                "name": "errors",
+                "iname": "errors",
+                "type": "list",
+                "description": "Errors occurred during node execution",
+                "error": true,
+                "onDemand": true
+              }
+            ],
+            "config": [
+              {
+                "key": "modelName",
+                "name": "Retrieved object model",
+                "required": true,
+                "type": "select_model",
+                "defaultValue": null,
+                "showTransient": false,
+                "description": "The model of the object that will be retrieved from the database"
+              },
+              {
+                "key": "objectId",
+                "name": "Object id",
+                "required": true,
+                "type": "expression",
+                "defaultValue": null,
+                "props": {
+                  "returnFieldType": null,
+                  "returnType": [4],
+                  "returnTypeErrText": null,
+                  "showFunctions": true,
+                  "typeFilter": null,
+                  "showFavorites": false,
+                  "showHeader": false,
+                  "hideContext": ["transaction"]
+                },
+                "description": "The object id expression to retrieve the object from the database."
+              },
+              {
+                "key": "lookup",
+                "name": "Lookup fields",
+                "required": false,
+                "type": "select_field",
+                "defaultValue": [],
+                "selectType": "lookup-advanced",
+                "description": "The referenced object fields to perform a left outer join for processing"
+              },
+              {
+                "key": "cache",
+                "name": "Cache retrieved object",
+                "required": false,
+                "type": "select",
+                "defaultValue": -2,
+                "options": [
+                  {
+                    "key": -2,
+                    "name": "No caching"
+                  },
+                  {
+                    "key": -1,
+                    "name": "Cache with no expiry"
+                  },
+                  {
+                    "key": 900,
+                    "name": "Cache for 15 minutes"
+                  },
+                  {
+                    "key": 1800,
+                    "name": "Cache for 30 minutes"
+                  },
+                  {
+                    "key": 3600,
+                    "name": "Cache for 1 hour"
+                  },
+                  {
+                    "key": 21600,
+                    "name": "Cache for 6 hours"
+                  },
+                  {
+                    "key": 43200,
+                    "name": "Cache for 12 hours"
+                  },
+                  {
+                    "key": 86400,
+                    "name": "Cache for 1 day"
+                  },
+                  {
+                    "key": 604800,
+                    "name": "Cache for 1 week"
+                  },
+                  {
+                    "key": 18144000,
+                    "name": "Cache for 1 month"
+                  },
+                  {
+                    "key": 108864000,
+                    "name": "Cache for 6 months"
+                  },
+                  {
+                    "key": 220752000,
+                    "name": "Cache for 1 year"
+                  }
+                ],
+                "description": "Specify whether to <bold>cache the retrieved object using its id as the cache key or not</bold>. If the object is cached and the timeout has expired, the cached object will automatically be removed from the cache."
+              },
+              {
+                "key": "applyRules",
+                "name": "Apply rules",
+                "required": false,
+                "type": "applyrules_switch",
+                "on": "Yes",
+                "off": "No",
+                "defaultValue": true,
+                "description": "Enable/disabled execution of object level security rules that define the conditions to allow or restrict certain operations (create, read, upddate, delete) on your app database, storage and cache.",
+                "action": "read"
+              },
+              {
+                "key": "dbTransaction",
+                "name": "Database transaction",
+                "required": false,
+                "type": "expression",
+                "defaultValue": null,
+                "props": {
+                  "returnFieldType": null,
+                  "returnType": 5,
+                  "returnTypeErrText": "transaction object",
+                  "showFunctions": false,
+                  "typeFilter": null,
+                  "showFavorites": false,
+                  "showHeader": false,
+                  "hideContext": [],
+                  "onlySpecialInput": true
+                },
+                "description": "Transaction context that this database operation will execute in"
+              },
+              {
+                "key": "errorManagement",
+                "name": "Error management",
+                "required": true,
+                "type": "radiogroup",
+                "defaultValue": "auto",
+                "radios": [
+                  {
+                    "value": "auto",
+                    "label": "Automatic error handling",
+                    "disabled": false
+                  },
+                  {
+                    "value": "manual",
+                    "label": "Manual error handling",
+                    "disabled": false
+                  }
+                ],
+                "description": "Error handler type of processing errors raised by this node, either automatically or manually."
+              }
+            ]
+          }
+        },
+        {
+          "typeId": "12",
+          "name": "Get Single Object by Query",
+          "card": {
+            "name": "Get Single Object by Query",
+            "group": "Database - CRUD",
+            "typeId": "12",
+            "description": "Retrieves a single object from the database matching the selection query. If caching is enabled, it also caches the retrieved object using the object id as the cache key. It runs when all the input link points are active. If successful, triggers the found otherwise triggers notFound.",
+            "version": "v1.0.1",
+            "multiInput": true,
+            "multiOutput": false,
+            "restrictedInputTypes": ["list"],
+            "errorManagement": true,
+            "inputs": [
+              {
+                "name": "inputObject",
+                "iname": "inputObject",
+                "type": "object",
+                "description": "Input object of the node, mainly used to specify selection filter"
+              }
+            ],
+            "outputs": [
+              {
+                "name": "found",
+                "iname": "found",
+                "type": "object",
+                "description": "Object retrieved from the database"
+              },
+              {
+                "name": "notFound",
+                "iname": "notFound",
+                "type": "object",
+                "description": "Object not found trigger, returns the input object"
+              },
+              {
+                "name": "errors",
+                "iname": "errors",
+                "type": "list",
+                "description": "Errors occurred during node execution",
+                "error": true,
+                "onDemand": true
+              }
+            ],
+            "config": [
+              {
+                "key": "modelName",
+                "name": "Retrieved object model",
+                "required": true,
+                "type": "select_model",
+                "defaultValue": null,
+                "showTransient": false,
+                "description": "The model of the object that will be retrieved from the database"
+              },
+              {
+                "key": "selectQuery",
+                "name": "Select query",
+                "required": true,
+                "type": "expression",
+                "defaultValue": null,
+                "ignoreTransient": false,
+                "props": {
+                  "returnFieldType": null,
+                  "returnType": 3,
+                  "returnTypeErrText": null,
+                  "showFunctions": true,
+                  "typeFilter": null,
+                  "showFavorites": false,
+                  "showHeader": false,
+                  "hideContext": ["transaction"]
+                },
+                "description": "The select query expression to retrieve the object from the database. <bold>If the selection query results in multiple matches, then the first entry is returned.</bold>",
+                "dbQuery": true
+              },
+              {
+                "key": "lookup",
+                "name": "Lookup fields",
+                "required": false,
+                "type": "select_field",
+                "defaultValue": [],
+                "selectType": "lookup-advanced",
+                "description": "The referenced object fields to perform a left outer join for processing"
+              },
+              {
+                "key": "cache",
+                "name": "Cache retrieved object",
+                "required": false,
+                "type": "select",
+                "defaultValue": -2,
+                "options": [
+                  {
+                    "key": -2,
+                    "name": "No caching"
+                  },
+                  {
+                    "key": -1,
+                    "name": "Cache with no expiry"
+                  },
+                  {
+                    "key": 900,
+                    "name": "Cache for 15 minutes"
+                  },
+                  {
+                    "key": 1800,
+                    "name": "Cache for 30 minutes"
+                  },
+                  {
+                    "key": 3600,
+                    "name": "Cache for 1 hour"
+                  },
+                  {
+                    "key": 21600,
+                    "name": "Cache for 6 hours"
+                  },
+                  {
+                    "key": 43200,
+                    "name": "Cache for 12 hours"
+                  },
+                  {
+                    "key": 86400,
+                    "name": "Cache for 1 day"
+                  },
+                  {
+                    "key": 604800,
+                    "name": "Cache for 1 week"
+                  },
+                  {
+                    "key": 18144000,
+                    "name": "Cache for 1 month"
+                  },
+                  {
+                    "key": 108864000,
+                    "name": "Cache for 6 months"
+                  },
+                  {
+                    "key": 220752000,
+                    "name": "Cache for 1 year"
+                  }
+                ],
+                "description": "Specify whether to <bold>cache the retrieved object using its id as the cache key or not</bold>. If the object is cached and the timeout has expired, the cached object will automatically be removed from the cache."
+              },
+              {
+                "key": "applyRules",
+                "name": "Apply rules",
+                "required": false,
+                "type": "applyrules_switch",
+                "on": "Yes",
+                "off": "No",
+                "defaultValue": true,
+                "description": "Enable/disabled execution of object level security rules that define the conditions to allow or restrict certain operations (create, read, upddate, delete) on your app database, storage and cache.",
+                "action": "read"
+              },
+              {
+                "key": "dbTransaction",
+                "name": "Database transaction",
+                "required": false,
+                "type": "expression",
+                "defaultValue": null,
+                "props": {
+                  "returnFieldType": null,
+                  "returnType": 5,
+                  "returnTypeErrText": "transaction object",
+                  "showFunctions": false,
+                  "typeFilter": null,
+                  "showFavorites": false,
+                  "showHeader": false,
+                  "hideContext": [],
+                  "onlySpecialInput": true
+                },
+                "description": "Transaction context that this database operation will execute in"
+              },
+              {
+                "key": "errorManagement",
+                "name": "Error management",
+                "required": true,
+                "type": "radiogroup",
+                "defaultValue": "auto",
+                "radios": [
+                  {
+                    "value": "auto",
+                    "label": "Automatic error handling",
+                    "disabled": false
+                  },
+                  {
+                    "value": "manual",
+                    "label": "Manual error handling",
+                    "disabled": false
+                  }
+                ],
+                "description": "Error handler type of processing errors raised by this node, either automatically or manually."
+              }
+            ]
+          }
+        },
+        {
+          "typeId": "13",
+          "name": "Update Multi Objects by Query",
+          "card": {
+            "name": "Update Multi Objects by Query",
+            "group": "Database - CRUD",
+            "typeId": "13",
+            "description": "Validates the input and updates the objects matching the selection query in the database with values provided in the input. It runs when all the input link points are active. If successful, triggers the updateInfo; otherwise triggers errors.",
+            "multiInput": true,
+            "multiOutput": false,
+            "restrictedInputTypes": ["list"],
+            "errorManagement": true,
+            "inputs": [
+              {
+                "name": "input",
+                "iname": "input",
+                "type": "object",
+                "description": "The updates that will be performed on the object in the database"
+              }
+            ],
+            "outputs": [
+              {
+                "name": "updateInfo",
+                "iname": "updateInfo",
+                "type": "object",
+                "description": "Update operation info object, which holds total query match and total updated objects count information"
+              },
+              {
+                "name": "errors",
+                "iname": "errors",
+                "type": "list",
+                "description": "Errors occurred during node execution",
+                "error": true,
+                "onDemand": true
+              }
+            ],
+            "config": [
+              {
+                "key": "modelName",
+                "name": "Updated object model",
+                "required": true,
+                "type": "select_model",
+                "defaultValue": null,
+                "showTransient": false,
+                "description": "The model of the object that will be updated in the database"
+              },
+              {
+                "key": "selectQuery",
+                "name": "Select query",
+                "required": true,
+                "type": "expression",
+                "defaultValue": null,
+                "ignoreTransient": false,
+                "props": {
+                  "returnFieldType": null,
+                  "returnType": 3,
+                  "returnTypeErrText": null,
+                  "showFunctions": true,
+                  "typeFilter": null,
+                  "showFavorites": false,
+                  "showHeader": false,
+                  "hideContext": ["transaction"]
+                },
+                "description": "The select query expression to find the objects that will be updated",
+                "dbQuery": true
+              },
+              {
+                "key": "lookup",
+                "name": "Lookup fields",
+                "required": false,
+                "type": "select_field",
+                "defaultValue": [],
+                "selectType": "lookup-advanced",
+                "description": "The referenced object fields to perform a left outer join for processing"
+              },
+              {
+                "key": "applyRules",
+                "name": "Apply rules",
+                "required": false,
+                "type": "applyrules_switch",
+                "on": "Yes",
+                "off": "No",
+                "defaultValue": true,
+                "description": "Enable/disabled execution of object level security rules that define the conditions to allow or restrict certain operations (create, read, upddate, delete) on your app database, storage and cache.",
+                "action": "update"
+              },
+              {
+                "key": "dbTransaction",
+                "name": "Database transaction",
+                "required": false,
+                "type": "expression",
+                "defaultValue": null,
+                "props": {
+                  "returnFieldType": null,
+                  "returnType": 5,
+                  "returnTypeErrText": "transaction object",
+                  "showFunctions": false,
+                  "typeFilter": null,
+                  "showFavorites": false,
+                  "showHeader": false,
+                  "hideContext": [],
+                  "onlySpecialInput": true
+                },
+                "description": "Transaction context that this database operation will execute in"
+              },
+              {
+                "key": "errorManagement",
+                "name": "Error management",
+                "required": true,
+                "type": "radiogroup",
+                "defaultValue": "auto",
+                "radios": [
+                  {
+                    "value": "auto",
+                    "label": "Automatic error handling",
+                    "disabled": false
+                  },
+                  {
+                    "value": "manual",
+                    "label": "Manual error handling",
+                    "disabled": false
+                  }
+                ],
+                "description": "Error handler type of processing errors raised by this node, either automatically or manually."
+              }
+            ]
+          }
+        },
+        {
+          "typeId": "14",
+          "name": "Update Object Fields by Id",
+          "card": {
+            "name": "Update Object Fields by Id",
+            "group": "Database - CRUD",
+            "typeId": "14",
+            "description": "Validates the provided field values and object id and if validated, updates the object with the provided object id in the database with new field values. Either sets the new values, unsets existing values, for numerical values increments, decrements, multiplies existing values, or takes the min or max of values and for basic values list arrays adds or removes elements to the list. If caching is enabled, also caches the updated object (if return top model object enabled, caches the updated top-level object) using its id as the cache key. It runs when all the input link points are active. If successful, it triggers the updated object (f return top model object enabled, triggers the updated top-level object); otherwise triggers errors.",
+            "version": "v1.0.2",
+            "multiInput": true,
+            "multiOutput": false,
+            "restrictedInputTypes": ["list"],
+            "errorManagement": true,
+            "inputs": [],
+            "outputs": [
+              {
+                "name": "updated",
+                "iname": "updated",
+                "type": "object",
+                "description": "Updated object"
+              },
+              {
+                "name": "errors",
+                "iname": "errors",
+                "type": "list",
+                "description": "Errors occurred during node execution",
+                "error": true,
+                "onDemand": true
+              }
+            ],
+            "config": [
+              {
+                "key": "modelName",
+                "name": "Updated object model",
+                "required": true,
+                "type": "select_model",
+                "defaultValue": null,
+                "showTransient": false,
+                "description": "The model of the object that will be updated in the database"
+              },
+              {
+                "key": "returnTopLevel",
+                "name": null,
+                "required": false,
+                "type": "toplevel_switch",
+                "on": "Yes",
+                "off": "No",
+                "defaultValue": false,
+                "description": null,
+                "action": "update"
+              },
+              {
+                "key": "objectId",
+                "name": "Object id",
+                "required": true,
+                "type": "expression",
+                "defaultValue": null,
+                "props": {
+                  "returnFieldType": null,
+                  "returnType": [4],
+                  "returnTypeErrText": null,
+                  "showFunctions": true,
+                  "typeFilter": null,
+                  "showFavorites": false,
+                  "showHeader": false,
+                  "hideContext": ["transaction"]
+                },
+                "description": "The id of the object that will be updated in the database."
+              },
+              {
+                "key": "updates",
+                "name": "Field value updates",
+                "required": true,
+                "type": "field_updates",
+                "defaultValue": {},
+                "description": "The list of fields and their new values to be updated in the database.",
+                "dbupdate": true
+              },
+              {
+                "key": "cache",
+                "name": "Cache updated object",
+                "required": false,
+                "type": "select",
+                "defaultValue": -2,
+                "options": [
+                  {
+                    "key": -2,
+                    "name": "No caching"
+                  },
+                  {
+                    "key": -1,
+                    "name": "Cache with no expiry"
+                  },
+                  {
+                    "key": 900,
+                    "name": "Cache for 15 minutes"
+                  },
+                  {
+                    "key": 1800,
+                    "name": "Cache for 30 minutes"
+                  },
+                  {
+                    "key": 3600,
+                    "name": "Cache for 1 hour"
+                  },
+                  {
+                    "key": 21600,
+                    "name": "Cache for 6 hours"
+                  },
+                  {
+                    "key": 43200,
+                    "name": "Cache for 12 hours"
+                  },
+                  {
+                    "key": 86400,
+                    "name": "Cache for 1 day"
+                  },
+                  {
+                    "key": 604800,
+                    "name": "Cache for 1 week"
+                  },
+                  {
+                    "key": 18144000,
+                    "name": "Cache for 1 month"
+                  },
+                  {
+                    "key": 108864000,
+                    "name": "Cache for 6 months"
+                  },
+                  {
+                    "key": 220752000,
+                    "name": "Cache for 1 year"
+                  }
+                ],
+                "description": "Specify whether to <bold>cache the updated object using its id as the cache key or not</bold>. If the object is cached and the timeout has expired, the cached object will automatically be removed from the cache."
+              },
+              {
+                "key": "applyRules",
+                "name": "Apply rules",
+                "required": false,
+                "type": "applyrules_switch",
+                "on": "Yes",
+                "off": "No",
+                "defaultValue": true,
+                "description": "Enable/disabled execution of object level security rules that define the conditions to allow or restrict certain operations (create, read, upddate, delete) on your app database, storage and cache.",
+                "action": "update"
+              },
+              {
+                "key": "dbTransaction",
+                "name": "Database transaction",
+                "required": false,
+                "type": "expression",
+                "defaultValue": null,
+                "props": {
+                  "returnFieldType": null,
+                  "returnType": 5,
+                  "returnTypeErrText": "transaction object",
+                  "showFunctions": false,
+                  "typeFilter": null,
+                  "showFavorites": false,
+                  "showHeader": false,
+                  "hideContext": [],
+                  "onlySpecialInput": true
+                },
+                "description": "Transaction context that this database operation will execute in"
+              },
+              {
+                "key": "errorManagement",
+                "name": "Error management",
+                "required": true,
+                "type": "radiogroup",
+                "defaultValue": "auto",
+                "radios": [
+                  {
+                    "value": "auto",
+                    "label": "Automatic error handling",
+                    "disabled": false
+                  },
+                  {
+                    "value": "manual",
+                    "label": "Manual error handling",
+                    "disabled": false
+                  }
+                ],
+                "description": "Error handler type of processing errors raised by this node, either automatically or manually."
+              }
+            ]
+          }
+        },
+        {
+          "typeId": "15",
+          "name": "Update Object Fields by Query",
+          "card": {
+            "name": "Update Object Fields by Query",
+            "group": "Database - CRUD",
+            "typeId": "15",
+            "description": "Validates the provided field values and updates the objects matching the selection query in the database with new field values. Either sets the new values, unsets existing values, for numerical values increments, decrements, multiplies existing values or takes the min or max of values and for basic values list arrays adds or removes elements to the list. It runs when all the input link points are active. If successful, triggers the updateInfo; otherwise triggers errors.",
+            "version": "v1.0.1",
+            "multiInput": true,
+            "multiOutput": false,
+            "restrictedInputTypes": ["list"],
+            "errorManagement": true,
+            "inputs": [],
+            "outputs": [
+              {
+                "name": "updateInfo",
+                "iname": "updateInfo",
+                "type": "object",
+                "description": "Update operation info object, which holds total query match and total updated objects count information"
+              },
+              {
+                "name": "errors",
+                "iname": "errors",
+                "type": "list",
+                "description": "Errors occurred during node execution",
+                "error": true,
+                "onDemand": true
+              }
+            ],
+            "config": [
+              {
+                "key": "modelName",
+                "name": "Updated object model",
+                "required": true,
+                "type": "select_model",
+                "defaultValue": null,
+                "showTransient": false,
+                "description": "The model of the object that will be updated in the database"
+              },
+              {
+                "key": "selectQuery",
+                "name": "Select query",
+                "required": true,
+                "type": "expression",
+                "defaultValue": null,
+                "ignoreTransient": false,
+                "props": {
+                  "returnFieldType": null,
+                  "returnType": 3,
+                  "returnTypeErrText": null,
+                  "showFunctions": true,
+                  "typeFilter": null,
+                  "showFavorites": false,
+                  "showHeader": false,
+                  "hideContext": ["transaction"]
+                },
+                "description": "The select query expression to find the objects that will be updated",
+                "dbQuery": true
+              },
+              {
+                "key": "lookup",
+                "name": "Lookup fields",
+                "required": false,
+                "type": "select_field",
+                "defaultValue": [],
+                "selectType": "lookup-advanced",
+                "description": "The referenced object fields to perform a left outer join for processing"
+              },
+              {
+                "key": "updates",
+                "name": "Field value updates",
+                "required": true,
+                "type": "field_updates",
+                "defaultValue": {},
+                "description": "The list of fields and their new values to be updated in the database.",
+                "hideContext": ["this"],
+                "dbupdate": true
+              },
+              {
+                "key": "applyRules",
+                "name": "Apply rules",
+                "required": false,
+                "type": "applyrules_switch",
+                "on": "Yes",
+                "off": "No",
+                "defaultValue": true,
+                "description": "Enable/disabled execution of object level security rules that define the conditions to allow or restrict certain operations (create, read, upddate, delete) on your app database, storage and cache.",
+                "action": "update"
+              },
+              {
+                "key": "dbTransaction",
+                "name": "Database transaction",
+                "required": false,
+                "type": "expression",
+                "defaultValue": null,
+                "props": {
+                  "returnFieldType": null,
+                  "returnType": 5,
+                  "returnTypeErrText": "transaction object",
+                  "showFunctions": false,
+                  "typeFilter": null,
+                  "showFavorites": false,
+                  "showHeader": false,
+                  "hideContext": [],
+                  "onlySpecialInput": true
+                },
+                "description": "Transaction context that this database operation will execute in"
+              },
+              {
+                "key": "errorManagement",
+                "name": "Error management",
+                "required": true,
+                "type": "radiogroup",
+                "defaultValue": "auto",
+                "radios": [
+                  {
+                    "value": "auto",
+                    "label": "Automatic error handling",
+                    "disabled": false
+                  },
+                  {
+                    "value": "manual",
+                    "label": "Manual error handling",
+                    "disabled": false
+                  }
+                ],
+                "description": "Error handler type of processing errors raised by this node, either automatically or manually."
+              }
+            ]
+          }
+        },
+        {
+          "typeId": "16",
+          "name": "Update Single Object by Id",
+          "card": {
+            "name": "Update Single Object by Id",
+            "group": "Database - CRUD",
+            "typeId": "16",
+            "description": "Validates the input and object id and, if validated, updates the object with the provided id in the database with values provided in the input. If caching is enabled, it also caches the updated object (if return top model object enabled, caches the updated top-level object) using its id as the cache key. It runs when all the input link points are active. If successful, triggers the updated object (if return top model object enabled, triggers the updated top-level object); otherwise triggers errors.",
+            "version": "v1.0.1",
+            "multiInput": true,
+            "multiOutput": false,
+            "restrictedInputTypes": ["list"],
+            "errorManagement": true,
+            "inputs": [
+              {
+                "name": "input",
+                "iname": "input",
+                "type": "object",
+                "description": "The updates that will be performed on the object in the database"
+              }
+            ],
+            "outputs": [
+              {
+                "name": "updated",
+                "iname": "updated",
+                "type": "object",
+                "description": "Updated object"
+              },
+              {
+                "name": "errors",
+                "iname": "errors",
+                "type": "list",
+                "description": "Errors occurred during node execution",
+                "error": true,
+                "onDemand": true
+              }
+            ],
+            "config": [
+              {
+                "key": "modelName",
+                "name": "Updated object model",
+                "required": true,
+                "type": "select_model",
+                "defaultValue": null,
+                "showTransient": false,
+                "description": "The model of the object that will be updated in the database"
+              },
+              {
+                "key": "returnTopLevel",
+                "name": null,
+                "required": false,
+                "type": "toplevel_switch",
+                "on": "Yes",
+                "off": "No",
+                "defaultValue": false,
+                "description": null,
+                "action": "update"
+              },
+              {
+                "key": "objectId",
+                "name": "Object id",
+                "required": true,
+                "type": "expression",
+                "defaultValue": null,
+                "props": {
+                  "returnFieldType": null,
+                  "returnType": [4],
+                  "returnTypeErrText": null,
+                  "showFunctions": true,
+                  "typeFilter": null,
+                  "showFavorites": false,
+                  "showHeader": false,
+                  "hideContext": ["transaction"]
+                },
+                "description": "The id of the object that will be updated in the database."
+              },
+              {
+                "key": "cache",
+                "name": "Cache updated object",
+                "required": false,
+                "type": "select",
+                "defaultValue": -2,
+                "options": [
+                  {
+                    "key": -2,
+                    "name": "No caching"
+                  },
+                  {
+                    "key": -1,
+                    "name": "Cache with no expiry"
+                  },
+                  {
+                    "key": 900,
+                    "name": "Cache for 15 minutes"
+                  },
+                  {
+                    "key": 1800,
+                    "name": "Cache for 30 minutes"
+                  },
+                  {
+                    "key": 3600,
+                    "name": "Cache for 1 hour"
+                  },
+                  {
+                    "key": 21600,
+                    "name": "Cache for 6 hours"
+                  },
+                  {
+                    "key": 43200,
+                    "name": "Cache for 12 hours"
+                  },
+                  {
+                    "key": 86400,
+                    "name": "Cache for 1 day"
+                  },
+                  {
+                    "key": 604800,
+                    "name": "Cache for 1 week"
+                  },
+                  {
+                    "key": 18144000,
+                    "name": "Cache for 1 month"
+                  },
+                  {
+                    "key": 108864000,
+                    "name": "Cache for 6 months"
+                  },
+                  {
+                    "key": 220752000,
+                    "name": "Cache for 1 year"
+                  }
+                ],
+                "description": "Specify whether to <bold>cache the updated object using its id as the cache key or not</bold>. If the object is cached and the timeout has expired, the cached object will automatically be removed from the cache."
+              },
+              {
+                "key": "applyRules",
+                "name": "Apply rules",
+                "required": false,
+                "type": "applyrules_switch",
+                "on": "Yes",
+                "off": "No",
+                "defaultValue": true,
+                "description": "Enable/disabled execution of object level security rules that define the conditions to allow or restrict certain operations (create, read, upddate, delete) on your app database, storage and cache.",
+                "action": "update"
+              },
+              {
+                "key": "dbTransaction",
+                "name": "Database transaction",
+                "required": false,
+                "type": "expression",
+                "defaultValue": null,
+                "props": {
+                  "returnFieldType": null,
+                  "returnType": 5,
+                  "returnTypeErrText": "transaction object",
+                  "showFunctions": false,
+                  "typeFilter": null,
+                  "showFavorites": false,
+                  "showHeader": false,
+                  "hideContext": [],
+                  "onlySpecialInput": true
+                },
+                "description": "Transaction context that this database operation will execute in"
+              },
+              {
+                "key": "errorManagement",
+                "name": "Error management",
+                "required": true,
+                "type": "radiogroup",
+                "defaultValue": "auto",
+                "radios": [
+                  {
+                    "value": "auto",
+                    "label": "Automatic error handling",
+                    "disabled": false
+                  },
+                  {
+                    "value": "manual",
+                    "label": "Manual error handling",
+                    "disabled": false
+                  }
+                ],
+                "description": "Error handler type of processing errors raised by this node, either automatically or manually."
+              }
+            ]
+          }
+        },
+        {
+          "typeId": "17",
+          "name": "Create Object Iterator",
+          "card": {
+            "name": "Create Object Iterator",
+            "group": "Database - Cursor",
+            "typeId": "17",
+            "description": "Retrieves objects from the database matching the selection query and creates an iterator (cursor) to iterate through the query results. It runs when all the input link points are active. If successful, triggers the iterator object.",
+            "multiInput": true,
+            "multiOutput": false,
+            "restrictedInputTypes": ["list"],
+            "errorManagement": true,
+            "inputs": [
+              {
+                "name": "inputObject",
+                "iname": "inputObject",
+                "type": "object",
+                "description": "Input object of the node, mainly used to specify selection filter"
+              }
+            ],
+            "outputs": [
+              {
+                "name": "iterator",
+                "iname": "iterator",
+                "type": "object",
+                "description": "Iterator (cursor) object"
+              },
+              {
+                "name": "errors",
+                "iname": "errors",
+                "type": "list",
+                "description": "Errors occurred during node execution",
+                "error": true,
+                "onDemand": true
+              }
+            ],
+            "config": [
+              {
+                "key": "modelName",
+                "name": "Retrieved object model",
+                "required": true,
+                "type": "select_model",
+                "defaultValue": null,
+                "showTransient": false,
+                "description": "The model of the object that will be retrieved from the database"
+              },
+              {
+                "key": "selectQuery",
+                "name": "Select query",
+                "required": false,
+                "type": "expression",
+                "defaultValue": null,
+                "ignoreTransient": false,
+                "props": {
+                  "returnFieldType": null,
+                  "returnType": 3,
+                  "returnTypeErrText": null,
+                  "showFunctions": true,
+                  "typeFilter": null,
+                  "showFavorites": false,
+                  "showHeader": false,
+                  "hideContext": ["transaction"]
+                },
+                "description": "The select query expression to retrieve the list of objects from the database.",
+                "dbQuery": true
+              },
+              {
+                "key": "sortExp",
+                "name": "Sort expression",
+                "required": false,
+                "type": "expression",
+                "defaultValue": null,
+                "ignoreTransient": false,
+                "props": {
+                  "returnFieldType": null,
+                  "returnType": [4, 5],
+                  "returnTypeErrText": "sort fields or list of sort fields",
+                  "showFunctions": true,
+                  "typeFilter": null,
+                  "showFavorites": false,
+                  "showHeader": false,
+                  "hideContext": ["this", "transaction"]
+                },
+                "description": "The sort fields expression enables you to specify the sort direction as a parameter. If the sort expression is specified, it overrides the values specified in the sort fields below. This expression should either returns a text value (e.g., \"fieldName:asc\") or an array of text values (e.g., [\"fieldName1:asc\", \"fieldName2:desc\"])."
+              },
+              {
+                "key": "sort",
+                "name": "Sort fields",
+                "required": false,
+                "type": "select_sort_field",
+                "defaultValue": [],
+                "description": "The list of model fields to use for sorting the query results"
+              },
+              {
+                "key": "lookup",
+                "name": "Lookup fields",
+                "required": false,
+                "type": "select_field",
+                "defaultValue": [],
+                "selectType": "lookup-advanced",
+                "description": "The referenced object fields to perform a left outer join for processing"
+              },
+              {
+                "key": "applyRules",
+                "name": "Apply rules",
+                "required": false,
+                "type": "applyrules_switch",
+                "on": "Yes",
+                "off": "No",
+                "defaultValue": true,
+                "description": "Enable/disabled execution of object level security rules that define the conditions to allow or restrict certain operations (create, read, upddate, delete) on your app database, storage and cache.",
+                "action": "read"
+              },
+              {
+                "key": "dbTransaction",
+                "name": "Database transaction",
+                "required": false,
+                "type": "expression",
+                "defaultValue": null,
+                "props": {
+                  "returnFieldType": null,
+                  "returnType": 5,
+                  "returnTypeErrText": "transaction object",
+                  "showFunctions": false,
+                  "typeFilter": null,
+                  "showFavorites": false,
+                  "showHeader": false,
+                  "hideContext": [],
+                  "onlySpecialInput": true
+                },
+                "description": "Transaction context that this database operation will execute in"
+              },
+              {
+                "key": "errorManagement",
+                "name": "Error management",
+                "required": true,
+                "type": "radiogroup",
+                "defaultValue": "auto",
+                "radios": [
+                  {
+                    "value": "auto",
+                    "label": "Automatic error handling",
+                    "disabled": false
+                  },
+                  {
+                    "value": "manual",
+                    "label": "Manual error handling",
+                    "disabled": false
+                  }
+                ],
+                "description": "Error handler type of processing errors raised by this node, either automatically or manually."
+              }
+            ]
+          }
+        },
+        {
+          "typeId": "18",
+          "name": "Iterate to Next Object",
+          "card": {
+            "name": "Iterate to Next Object",
+            "group": "Database - Cursor",
+            "typeId": "18",
+            "description": "Gets the next available object from the iterator. It runs when the trigger and iterator are active. If successful, triggers found otherwise triggers notFound.",
+            "multiInput": false,
+            "multiOutput": false,
+            "errorManagement": true,
+            "noCustomProps": true,
+            "inputs": [
+              {
+                "name": "trigger",
+                "iname": "trigger",
+                "type": "trigger",
+                "description": "Trigger of the node"
+              },
+              {
+                "name": "iterator",
+                "iname": "iterator",
+                "type": "object",
+                "description": "Iterator object to iterate over query results"
+              }
+            ],
+            "outputs": [
+              {
+                "name": "found",
+                "iname": "found",
+                "type": "object",
+                "description": "Next object retrieved from the iterator"
+              },
+              {
+                "name": "notFound",
+                "iname": "notFound",
+                "type": "trigger",
+                "description": "Object not found trigger"
+              },
+              {
+                "name": "errors",
+                "iname": "errors",
+                "type": "list",
+                "description": "Errors occurred during node execution",
+                "error": true,
+                "onDemand": true
+              }
+            ],
+            "config": [
+              {
+                "key": "errorManagement",
+                "name": "Error management",
+                "required": true,
+                "type": "radiogroup",
+                "defaultValue": "auto",
+                "radios": [
+                  {
+                    "value": "auto",
+                    "label": "Automatic error handling",
+                    "disabled": false
+                  },
+                  {
+                    "value": "manual",
+                    "label": "Manual error handling",
+                    "disabled": false
+                  }
+                ],
+                "description": "Error handler type of processing errors raised by this node, either automatically or manually."
+              }
+            ]
+          }
+        },
+        {
+          "typeId": "19",
+          "name": "Abort Transaction",
+          "card": {
+            "name": "Abort Transaction",
+            "group": "Database - Transaction",
+            "typeId": "19",
+            "description": "Aborts the active transaction. It runs when the trigger link point is active.",
+            "multiInput": false,
+            "multiOutput": false,
+            "errorManagement": true,
+            "inputs": [
+              {
+                "name": "trigger",
+                "iname": "trigger",
+                "type": "trigger",
+                "description": "Trigger of the node"
+              }
+            ],
+            "outputs": [
+              {
+                "name": "success",
+                "iname": "success",
+                "type": "trigger",
+                "description": "Output trigger of successful execution of the node"
+              },
+              {
+                "name": "errors",
+                "iname": "errors",
+                "type": "list",
+                "description": "Errors occurred during node execution",
+                "error": true,
+                "onDemand": true
+              }
+            ],
+            "config": [
+              {
+                "key": "dbTransaction",
+                "name": "Database transaction",
+                "required": true,
+                "type": "expression",
+                "defaultValue": null,
+                "props": {
+                  "returnFieldType": null,
+                  "returnType": 5,
+                  "returnTypeErrText": "transaction object",
+                  "showFunctions": false,
+                  "typeFilter": null,
+                  "showFavorites": false,
+                  "showHeader": false,
+                  "hideContext": [],
+                  "onlySpecialInput": true
+                },
+                "description": "Transaction object that will be aborted"
+              },
+              {
+                "key": "errorManagement",
+                "name": "Error management",
+                "required": true,
+                "type": "radiogroup",
+                "defaultValue": "auto",
+                "radios": [
+                  {
+                    "value": "auto",
+                    "label": "Automatic error handling",
+                    "disabled": false
+                  },
+                  {
+                    "value": "manual",
+                    "label": "Manual error handling",
+                    "disabled": false
+                  }
+                ],
+                "description": "Error handler type of processing errors raised by this node, either automatically or manually."
+              }
+            ]
+          }
+        },
+        {
+          "typeId": "20",
+          "name": "Commit Transaction",
+          "card": {
+            "name": "Commit Transaction",
+            "group": "Database - Transaction",
+            "typeId": "20",
+            "description": "Commits the active transaction. It runs when the trigger link point is active.",
+            "multiInput": false,
+            "multiOutput": false,
+            "errorManagement": true,
+            "inputs": [
+              {
+                "name": "trigger",
+                "iname": "trigger",
+                "type": "trigger",
+                "description": "Trigger of the node"
+              }
+            ],
+            "outputs": [
+              {
+                "name": "success",
+                "iname": "success",
+                "type": "trigger",
+                "description": "Output trigger of successful execution of the node"
+              },
+              {
+                "name": "errors",
+                "iname": "errors",
+                "type": "list",
+                "description": "Errors occurred during node execution",
+                "error": true,
+                "onDemand": true
+              }
+            ],
+            "config": [
+              {
+                "key": "dbTransaction",
+                "name": "Database transaction",
+                "required": true,
+                "type": "expression",
+                "defaultValue": null,
+                "props": {
+                  "returnFieldType": null,
+                  "returnType": 5,
+                  "returnTypeErrText": "transaction object",
+                  "showFunctions": false,
+                  "typeFilter": null,
+                  "showFavorites": false,
+                  "showHeader": false,
+                  "hideContext": [],
+                  "onlySpecialInput": true
+                },
+                "description": "Transaction object that will be committed"
+              },
+              {
+                "key": "errorManagement",
+                "name": "Error management",
+                "required": true,
+                "type": "radiogroup",
+                "defaultValue": "auto",
+                "radios": [
+                  {
+                    "value": "auto",
+                    "label": "Automatic error handling",
+                    "disabled": false
+                  },
+                  {
+                    "value": "manual",
+                    "label": "Manual error handling",
+                    "disabled": false
+                  }
+                ],
+                "description": "Error handler type of processing errors raised by this node, either automatically or manually."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "Logical",
+      "name": "Logical",
+      "nodes": [
+        {
+          "typeId": "21",
+          "name": "If False",
+          "card": {
+            "name": "If False",
+            "group": "Logical",
+            "typeId": "21",
+            "description": "Performs false condition check for the input data objects using the provided expression. If the expression evaluates to false then output link points assigned are triggered otherwise does nothing. It runs when all the input link points are active.",
+            "multiInput": true,
+            "multiOutput": true,
+            "groups": [
+              {
+                "key": "IfFalse",
+                "label": "False",
+                "display": false
+              }
+            ],
+            "errorManagement": true,
+            "inputs": [],
+            "outputs": [
+              {
+                "name": "errors",
+                "iname": "errors",
+                "type": "list",
+                "description": "Errors occurred during node execution",
+                "error": true,
+                "onDemand": true
+              }
+            ],
+            "config": [
+              {
+                "key": "condition",
+                "name": "Condition",
+                "required": true,
+                "type": "expression",
+                "defaultValue": null,
+                "props": {
+                  "returnFieldType": null,
+                  "returnType": 3,
+                  "returnTypeErrText": null,
+                  "showFunctions": true,
+                  "typeFilter": null,
+                  "showFavorites": false,
+                  "showHeader": false
+                },
+                "description": "Logical test condition to evaluate against input link point values"
+              },
+              {
+                "key": "IfFalse",
+                "groupKey": "false",
+                "name": "If false",
+                "required": true,
+                "type": "assign_input",
+                "defaultValue": [],
+                "description": "List of input link points that will be triggered if the condition evaluates to false"
+              },
+              {
+                "key": "errorManagement",
+                "name": "Error management",
+                "required": true,
+                "type": "radiogroup",
+                "defaultValue": "auto",
+                "radios": [
+                  {
+                    "value": "auto",
+                    "label": "Automatic error handling",
+                    "disabled": false
+                  },
+                  {
+                    "value": "manual",
+                    "label": "Manual error handling",
+                    "disabled": false
+                  }
+                ],
+                "description": "Error handler type of processing errors raised by this node, either automatically or manually."
+              }
+            ]
+          }
+        },
+        {
+          "typeId": "22",
+          "name": "If True",
+          "card": {
+            "name": "If True",
+            "group": "Logical",
+            "typeId": "22",
+            "description": "Performs true condition check for the input data objects using the provided expression. If the expression evaluates to true then output link points assigned are triggered otherwise does nothing. It runs when all the input link points are active.",
+            "multiInput": true,
+            "multiOutput": true,
+            "groups": [
+              {
+                "key": "ifTrue",
+                "label": "True",
+                "display": false
+              }
+            ],
+            "errorManagement": true,
+            "inputs": [],
+            "outputs": [
+              {
+                "name": "errors",
+                "iname": "errors",
+                "type": "list",
+                "description": "Errors occurred during node execution",
+                "error": true,
+                "onDemand": true
+              }
+            ],
+            "config": [
+              {
+                "key": "condition",
+                "name": "Condition",
+                "required": true,
+                "type": "expression",
+                "defaultValue": null,
+                "props": {
+                  "returnFieldType": null,
+                  "returnType": 3,
+                  "returnTypeErrText": null,
+                  "showFunctions": true,
+                  "typeFilter": null,
+                  "showFavorites": false,
+                  "showHeader": false
+                },
+                "description": "Logical test condition to evaluate against input link point values"
+              },
+              {
+                "key": "ifTrue",
+                "groupKey": "true",
+                "name": "If true",
+                "required": true,
+                "type": "assign_input",
+                "defaultValue": [],
+                "description": "List of input link points that will be triggered if condition evaluates to true"
+              },
+              {
+                "key": "errorManagement",
+                "name": "Error management",
+                "required": true,
+                "type": "radiogroup",
+                "defaultValue": "auto",
+                "radios": [
+                  {
+                    "value": "auto",
+                    "label": "Automatic error handling",
+                    "disabled": false
+                  },
+                  {
+                    "value": "manual",
+                    "label": "Manual error handling",
+                    "disabled": false
+                  }
+                ],
+                "description": "Error handler type of processing errors raised by this node, either automatically or manually."
+              }
+            ]
+          }
+        },
+        {
+          "typeId": "23",
+          "name": "If-Else Condition",
+          "card": {
+            "name": "If-Else Condition",
+            "group": "Logical",
+            "typeId": "23",
+            "description": "Performs an if-else condition check for the input data objects using the provided expression. If the expression evaluates to true then output link points assigned to true are triggered otherwise output link points assigned to false are triggered. It runs when all the input link points are active.",
+            "multiInput": true,
+            "multiOutput": true,
+            "groups": [
+              {
+                "key": "ifTrue",
+                "label": "True",
+                "display": true
+              },
+              {
+                "key": "ifFalse",
+                "label": "False",
+                "display": true
+              }
+            ],
+            "errorManagement": true,
+            "inputs": [],
+            "outputs": [
+              {
+                "name": "errors",
+                "iname": "errors",
+                "type": "list",
+                "description": "Errors occurred during node execution",
+                "error": true,
+                "onDemand": true
+              }
+            ],
+            "config": [
+              {
+                "key": "condition",
+                "name": "Condition",
+                "required": true,
+                "type": "expression",
+                "defaultValue": null,
+                "props": {
+                  "returnFieldType": null,
+                  "returnType": 3,
+                  "returnTypeErrText": null,
+                  "showFunctions": true,
+                  "typeFilter": null,
+                  "showFavorites": false,
+                  "showHeader": false
+                },
+                "description": "Logical test condition to evaluate against input link point values"
+              },
+              {
+                "key": "ifTrue",
+                "groupKey": "true",
+                "name": "If true",
+                "required": true,
+                "type": "assign_input",
+                "defaultValue": [],
+                "description": "List of input link points that will be triggered if the condition evaluates to true"
+              },
+              {
+                "key": "ifFalse",
+                "groupKey": "false",
+                "name": "If false",
+                "required": true,
+                "type": "assign_input",
+                "defaultValue": [],
+                "description": "List of input link points that will be triggered if the condition evaluates to false"
+              },
+              {
+                "key": "errorManagement",
+                "name": "Error management",
+                "required": true,
+                "type": "radiogroup",
+                "defaultValue": "auto",
+                "radios": [
+                  {
+                    "value": "auto",
+                    "label": "Automatic error handling",
+                    "disabled": false
+                  },
+                  {
+                    "value": "manual",
+                    "label": "Manual error handling",
+                    "disabled": false
+                  }
+                ],
+                "description": "Error handler type of processing errors raised by this node, either automatically or manually."
+              }
+            ]
+          }
+        },
+        {
+          "typeId": "24",
+          "name": "Synchronize Flow",
+          "card": {
+            "name": "Synchronize Flow",
+            "group": "Logical",
+            "typeId": "24",
+            "description": "Acts as a junction point to synchronize the execution of nodes. It enables the wait of the execution flow until the execution completion of selected nodes. It runs when all the input link points are active and triggers assigned output link points.",
+            "multiInput": true,
+            "multiOutput": true,
+            "groups": [
+              {
+                "key": "sync",
+                "label": "Sync",
+                "display": false
+              }
+            ],
+            "errorManagement": false,
+            "inputs": [],
+            "outputs": [],
+            "config": [
+              {
+                "key": "sync",
+                "groupKey": "sync",
+                "name": "Triggered inputs",
+                "required": true,
+                "type": "assign_input",
+                "defaultValue": [],
+                "description": "List of input link points that will be triggered as output link point when all input link points are active"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id":"Object",
+      "name":"Object",
+      "nodes":[
+         {
+            "typeId":"25",
+            "name":"Change Object Type",
+            "card":{
+               "name":"Change Object Type",
+               "group":"Object",
+               "typeId":"25",
+               "description":"Changes the type of the input value. It runs when all the input link point is active and returns the input object with the new type definition as output.",
+               "multiInput":false,
+               "multiOutput":false,
+               "errorManagement":true,
+               "inputs":[
+                  {
+                     "name":"inputValue",
+                     "iname":"inputValue",
+                     "type":"value",
+                     "description":"Input value of the node, either an object or a list of objects."
+                  }
+               ],
+               "outputs":[
+                  {
+                     "name":"outputValue",
+                     "iname":"outputValue",
+                     "type":"value",
+                     "description":"Either an object or an object list picked from the input object."
+                  },
+                  {
+                     "name":"errors",
+                     "iname":"errors",
+                     "type":"list",
+                     "description":"Errors occurred during node execution",
+                     "error":true,
+                     "onDemand":true
+                  }
+               ],
+               "config":[
+                  {
+                     "key":"modelName",
+                     "name":"New object model",
+                     "required":true,
+                     "type":"select_model",
+                     "defaultValue":null,
+                     "showTransient":false,
+                     "description":"The new model that will be applied to the input object(s)"
+                  },
+                  {
+                     "key":"errorManagement",
+                     "name":"Error management",
+                     "required":true,
+                     "type":"radiogroup",
+                     "defaultValue":"auto",
+                     "radios":[
+                        {
+                           "value":"auto",
+                           "label":"Automatic error handling",
+                           "disabled":false
+                        },
+                        {
+                           "value":"manual",
+                           "label":"Manual error handling",
+                           "disabled":false
+                        }
+                     ],
+                     "description":"Error handler type of processing errors raised by this node, either automatically or manually."
+                  }
+               ]
+            }
+         },
+         {
+            "typeId":"26",
+            "name":"Create Object in Memory",
+            "card":{
+               "name":"Create Object in Memory",
+               "group":"Object",
+               "typeId":"603f5d142adfd4861497cec5",
+               "description":"Creates a new object of the provided model with provided initial values in memory. It runs when all the input link points are active. If successful, triggers the newly created object.",
+               "multiInput":true,
+               "multiOutput":false,
+               "restrictedInputTypes":[
+                  
+               ],
+               "errorManagement":true,
+               "inputs":[
+                  {
+                     "name":"input",
+                     "iname":"input",
+                     "type":"object",
+                     "description":"Input of the node to configure values of the created object"
+                  }
+               ],
+               "outputs":[
+                  {
+                     "name":"object",
+                     "iname":"object",
+                     "type":"object",
+                     "description":"Newly created object"
+                  },
+                  {
+                     "name":"errors",
+                     "iname":"errors",
+                     "type":"list",
+                     "description":"Errors occurred during node execution",
+                     "error":true,
+                     "onDemand":true
+                  }
+               ],
+               "config":[
+                  {
+                     "key":"modelName",
+                     "name":"Object model",
+                     "required":true,
+                     "type":"select_model",
+                     "defaultValue":null,
+                     "showTransient":true,
+                     "description":"The model of the newly created object"
+                  },
+                  {
+                     "key":"updates",
+                     "name":"Field value updates",
+                     "required":false,
+                     "type":"field_updates",
+                     "defaultValue":{
+                        
+                     },
+                     "description":"Mapping of the fields of the new object with their initial value expressions"
+                  },
+                  {
+                     "key":"keyvalues",
+                     "name":"Key-value pairs",
+                     "required":false,
+                     "type":"key_value_pairs",
+                     "defaultValue":[
+                        
+                     ],
+                     "description":"Name-value pairs that are used to customize the values of the newly created object besides field value mapping."
+                  },
+                  {
+                     "key":"errorManagement",
+                     "name":"Error management",
+                     "required":true,
+                     "type":"radiogroup",
+                     "defaultValue":"auto",
+                     "radios":[
+                        {
+                           "value":"auto",
+                           "label":"Automatic error handling",
+                           "disabled":false
+                        },
+                        {
+                           "value":"manual",
+                           "label":"Manual error handling",
+                           "disabled":false
+                        }
+                     ],
+                     "description":"Error handler type of processing errors raised by this node, either automatically or manually."
+                  }
+               ]
+            }
+         },
+         {
+            "typeId":"27",
+            "name":"Create Object List in Memory",
+            "card":{
+               "name":"Create Object List in Memory",
+               "group":"Object",
+               "typeId":"27",
+               "description":"Creates a list of empty objects of the provided model in memory. It runs when the trigger is active. If successful, triggers the newly created objects list.",
+               "multiInput":false,
+               "multiOutput":false,
+               "errorManagement":true,
+               "inputs":[
+                  {
+                     "name":"trigger",
+                     "iname":"trigger",
+                     "type":"trigger",
+                     "description":"Trigger of the node"
+                  }
+               ],
+               "outputs":[
+                  {
+                     "name":"objectList",
+                     "iname":"objectList",
+                     "type":"list",
+                     "description":"Newly created empty objects list"
+                  },
+                  {
+                     "name":"errors",
+                     "iname":"errors",
+                     "type":"list",
+                     "description":"Errors occurred during node execution",
+                     "error":true,
+                     "onDemand":true
+                  }
+               ],
+               "config":[
+                  {
+                     "key":"modelName",
+                     "name":"Object model",
+                     "required":true,
+                     "type":"select_model",
+                     "defaultValue":null,
+                     "showTransient":true,
+                     "description":"The model of the newly created objects list"
+                  },
+                  {
+                     "key":"errorManagement",
+                     "name":"Error management",
+                     "required":true,
+                     "type":"radiogroup",
+                     "defaultValue":"auto",
+                     "radios":[
+                        {
+                           "value":"auto",
+                           "label":"Automatic error handling",
+                           "disabled":false
+                        },
+                        {
+                           "value":"manual",
+                           "label":"Manual error handling",
+                           "disabled":false
+                        }
+                     ],
+                     "description":"Error handler type of processing errors raised by this node, either automatically or manually."
+                  }
+               ]
+            }
+         },
+         {
+            "typeId":"28",
+            "name":"Create Variables Object",
+            "card":{
+               "name":"Create Variables Object",
+               "group":"Object",
+               "typeId":"28",
+               "description":"Creates a new variables object which is a transient model valid only inside the service it was created in. It runs when all the input link points are active. If successful, triggers the newly created variables object.",
+               "multiInput":true,
+               "multiOutput":false,
+               "restrictedInputTypes":[
+                  
+               ],
+               "errorManagement":true,
+               "inputs":[
+                  {
+                     "name":"input",
+                     "iname":"input",
+                     "type":"object",
+                     "description":"Triggers the execution of the node "
+                  }
+               ],
+               "outputs":[
+                  {
+                     "name":"object",
+                     "iname":"object",
+                     "type":"object",
+                     "description":"Newly created variables object"
+                  },
+                  {
+                     "name":"errors",
+                     "iname":"errors",
+                     "type":"list",
+                     "description":"Errors occurred during node execution",
+                     "error":true,
+                     "onDemand":true
+                  }
+               ],
+               "config":[
+                  {
+                     "key":"customModel",
+                     "name":"Custom variables object model",
+                     "required":true,
+                     "type":"custom_model",
+                     "description":"The transient model definition of the newly created variables object"
+                  },
+                  {
+                     "key":"errorManagement",
+                     "name":"Error management",
+                     "required":true,
+                     "type":"radiogroup",
+                     "defaultValue":"auto",
+                     "radios":[
+                        {
+                           "value":"auto",
+                           "label":"Automatic error handling",
+                           "disabled":false
+                        },
+                        {
+                           "value":"manual",
+                           "label":"Manual error handling",
+                           "disabled":false
+                        }
+                     ],
+                     "description":"Error handler type of processing errors raised by this node, either automatically or manually."
+                  }
+               ]
+            }
+         },
+         {
+            "typeId":"29",
+            "name":"Get Object Value",
+            "card":{
+               "name":"Get Object Value",
+               "group":"Object",
+               "typeId":"29",
+               "description":"Picks and returns the specified sub-object or sub-object list field value from the input object. It runs when the inputObject is active.",
+               "multiInput":false,
+               "multiOutput":false,
+               "errorManagement":true,
+               "inputs":[
+                  {
+                     "name":"inputObject",
+                     "iname":"inputObject",
+                     "type":"object",
+                     "description":"Input object of the node"
+                  }
+               ],
+               "outputs":[
+                  {
+                     "name":"pickedValue",
+                     "iname":"pickedValue",
+                     "type":"value",
+                     "description":"Either an object or an object list picked from the input object."
+                  },
+                  {
+                     "name":"errors",
+                     "iname":"errors",
+                     "type":"list",
+                     "description":"Errors occurred during node execution",
+                     "error":true,
+                     "onDemand":true
+                  }
+               ],
+               "config":[
+                  {
+                     "key":"pickedValueExp",
+                     "name":"Picked value",
+                     "required":true,
+                     "type":"expression",
+                     "defaultValue":null,
+                     "props":{
+                        "returnFieldType":[
+                           "object",
+                           "object-list"
+                        ],
+                        "returnType":null,
+                        "showFunctions":false,
+                        "typeFilter":[
+                           "object",
+                           "object-list"
+                        ],
+                        "showFavorites":false,
+                        "showHeader":false
+                     },
+                     "description":"The field name of the object or object list to pick from the input object"
+                  },
+                  {
+                     "key":"errorManagement",
+                     "name":"Error management",
+                     "required":true,
+                     "type":"radiogroup",
+                     "defaultValue":"auto",
+                     "radios":[
+                        {
+                           "value":"auto",
+                           "label":"Automatic error handling",
+                           "disabled":false
+                        },
+                        {
+                           "value":"manual",
+                           "label":"Manual error handling",
+                           "disabled":false
+                        }
+                     ],
+                     "description":"Error handler type of processing errors raised by this node, either automatically or manually."
+                  }
+               ]
+            }
+         },
+         {
+            "typeId":"30",
+            "name":"Set Field Value of Object in Memory",
+            "card":{
+               "name":"Set Field Value of Object in Memory",
+               "group":"Object",
+               "typeId":"30",
+               "description":"Sets the field values of the input object. It runs when all the input link points are active. If successful, triggers the updatedObject.",
+               "multiInput":true,
+               "multiOutput":false,
+               "restrictedInputTypes":[
+                  
+               ],
+               "errorManagement":true,
+               "inputs":[
+                  {
+                     "name":"inputObject",
+                     "iname":"inputObject",
+                     "type":"object",
+                     "description":"Input object of the node"
+                  }
+               ],
+               "outputs":[
+                  {
+                     "name":"updatedObject",
+                     "iname":"updatedObject",
+                     "type":"object",
+                     "description":"The updated object."
+                  },
+                  {
+                     "name":"errors",
+                     "iname":"errors",
+                     "type":"list",
+                     "description":"Errors occurred during node execution",
+                     "error":true,
+                     "onDemand":true
+                  }
+               ],
+               "config":[
+                  {
+                     "key":"updates",
+                     "name":"Field value updates",
+                     "required":false,
+                     "type":"field_updates",
+                     "defaultValue":{
+                        
+                     },
+                     "description":"Mapping of the fields of the input object with their update expressions"
+                  },
+                  {
+                     "key":"keyvalues",
+                     "name":"Key-value pairs",
+                     "required":false,
+                     "type":"key_value_pairs",
+                     "defaultValue":[
+                        
+                     ],
+                     "description":"Name-value pairs that are used to customize the values of the input object besides field value mapping."
+                  },
+                  {
+                     "key":"errorManagement",
+                     "name":"Error management",
+                     "required":true,
+                     "type":"radiogroup",
+                     "defaultValue":"auto",
+                     "radios":[
+                        {
+                           "value":"auto",
+                           "label":"Automatic error handling",
+                           "disabled":false
+                        },
+                        {
+                           "value":"manual",
+                           "label":"Manual error handling",
+                           "disabled":false
+                        }
+                     ],
+                     "description":"Error handler type of processing errors raised by this node, either automatically or manually."
+                  }
+               ]
+            }
+         },
+         {
+            "typeId":"31",
+            "name":"Set Field Values of List Objects in Memory",
+            "card":{
+               "name":"Set Field Values of List Objects in Memory",
+               "group":"Object",
+               "typeId":"31",
+               "description":"Sets the field values of the input objects using the values provided in other object list. Iterates through the list of other objects one by one and performs field updates in input object list for the corresponding object. It runs when all the input link points are active. If successful, triggers the updatedObjects.",
+               "multiInput":true,
+               "multiOutput":false,
+               "restrictedInputTypes":[
+                  
+               ],
+               "restrictedInputNames":[
+                  "other"
+               ],
+               "errorManagement":true,
+               "inputs":[
+                  {
+                     "name":"inputObjects",
+                     "iname":"inputObjects",
+                     "type":"list",
+                     "description":"List of input objects"
+                  },
+                  {
+                     "name":"otherObjects",
+                     "iname":"otherObjects",
+                     "type":"list",
+                     "description":"List of other objects, mainly used to set the values of input objects"
+                  }
+               ],
+               "outputs":[
+                  {
+                     "name":"updatedObjects",
+                     "iname":"updatedObjects",
+                     "type":"list",
+                     "description":"The list of updated objects"
+                  },
+                  {
+                     "name":"errors",
+                     "iname":"errors",
+                     "type":"list",
+                     "description":"Errors occurred during node execution",
+                     "error":true,
+                     "onDemand":true
+                  }
+               ],
+               "config":[
+                  {
+                     "key":"updates",
+                     "name":"Field value updates",
+                     "required":false,
+                     "type":"field_updates",
+                     "defaultValue":{
+                        
+                     },
+                     "hideContext":[
+                        "inputObjects",
+                        "otherObjects"
+                     ],
+                     "description":"Mapping of the fields of the input objects of the list with their update expressions"
+                  },
+                  {
+                     "key":"keyvalues",
+                     "name":"Key-value pairs",
+                     "required":false,
+                     "type":"key_value_pairs",
+                     "defaultValue":[
+                        
+                     ],
+                     "description":"Name-value pairs that are used to customize the objects of the input list besides field value mapping."
+                  },
+                  {
+                     "key":"errorManagement",
+                     "name":"Error management",
+                     "required":true,
+                     "type":"radiogroup",
+                     "defaultValue":"auto",
+                     "radios":[
+                        {
+                           "value":"auto",
+                           "label":"Automatic error handling",
+                           "disabled":false
+                        },
+                        {
+                           "value":"manual",
+                           "label":"Manual error handling",
+                           "disabled":false
+                        }
+                     ],
+                     "description":"Error handler type of processing errors raised by this node, either automatically or manually."
+                  }
+               ]
+            }
+         },
+         {
+            "typeId":"32",
+            "name":"Transform Object List",
+            "card":{
+               "name":"Transform Object List",
+               "group":"Object",
+               "typeId":"32",
+               "description":"Transforms the input object list by picking a specific sub-object or sub-object list field value from each object in the input list and returning the resulting new object list. It runs when the inputList is active.",
+               "multiInput":false,
+               "multiOutput":false,
+               "errorManagement":true,
+               "inputs":[
+                  {
+                     "name":"inputList",
+                     "iname":"inputList",
+                     "type":"list",
+                     "description":"Input objects list of the node"
+                  }
+               ],
+               "outputs":[
+                  {
+                     "name":"transformedList",
+                     "iname":"transformedList",
+                     "type":"list",
+                     "description":"Object list created by picking values from each input object."
+                  },
+                  {
+                     "name":"errors",
+                     "iname":"errors",
+                     "type":"list",
+                     "description":"Errors occurred during node execution",
+                     "error":true,
+                     "onDemand":true
+                  }
+               ],
+               "config":[
+                  {
+                     "key":"pickedValueExp",
+                     "name":"Picked value",
+                     "required":true,
+                     "type":"expression",
+                     "defaultValue":null,
+                     "props":{
+                        "returnFieldType":[
+                           "object",
+                           "object-list"
+                        ],
+                        "returnType":null,
+                        "showFunctions":false,
+                        "typeFilter":[
+                           
+                        ],
+                        "showFavorites":false,
+                        "showHeader":false
+                     },
+                     "description":"The field name of the object or object list to pick from each input object"
+                  },
+                  {
+                     "key":"errorManagement",
+                     "name":"Error management",
+                     "required":true,
+                     "type":"radiogroup",
+                     "defaultValue":"auto",
+                     "radios":[
+                        {
+                           "value":"auto",
+                           "label":"Automatic error handling",
+                           "disabled":false
+                        },
+                        {
+                           "value":"manual",
+                           "label":"Manual error handling",
+                           "disabled":false
+                        }
+                     ],
+                     "description":"Error handler type of processing errors raised by this node, either automatically or manually."
+                  }
+               ]
+            }
+         }
+      ]
+   },
+   {
+    "id":"Response",
+    "name":"Response",
+    "nodes":[
+       {
+          "typeId":"33",
+          "name":"Create Error Message",
+          "card":{
+             "name":"Create Error Message",
+             "group":"Response",
+             "typeId":"33",
+             "description":"Creates a custom error message and returns it in a list (array). It runs when all the input link points are active.",
+             "multiInput":true,
+             "multiOutput":false,
+             "errorManagement":true,
+             "inputs":[
+                {
+                   "name":"trigger",
+                   "iname":"trigger",
+                   "type":"trigger",
+                   "description":"Trigger of the node, mainly used to initiate execution of the node."
+                }
+             ],
+             "outputs":[
+                {
+                   "name":"errorMessage",
+                   "iname":"errorMessage",
+                   "type":"list",
+                   "description":"Newly created error message returnede in a list (array)"
+                },
+                {
+                   "name":"errors",
+                   "iname":"errors",
+                   "type":"list",
+                   "description":"Errors occurred during node execution",
+                   "error":true,
+                   "onDemand":true
+                }
+             ],
+             "config":[
+                {
+                   "key":"errCode",
+                   "name":"Error code",
+                   "required":true,
+                   "type":"expression",
+                   "defaultValue":null,
+                   "props":{
+                      "returnFieldType":null,
+                      "returnType":4,
+                      "returnTypeErrText":null,
+                      "showFunctions":true,
+                      "typeFilter":null,
+                      "showFavorites":false,
+                      "showHeader":false,
+                      "hideContext":null
+                   },
+                   "description":"The short textual code of the error"
+                },
+                {
+                   "key":"errMessage",
+                   "name":"Error message",
+                   "required":true,
+                   "type":"expression",
+                   "defaultValue":null,
+                   "props":{
+                      "returnFieldType":null,
+                      "returnType":4,
+                      "returnTypeErrText":null,
+                      "showFunctions":true,
+                      "typeFilter":null,
+                      "showFavorites":false,
+                      "showHeader":false,
+                      "hideContext":null
+                   },
+                   "description":"Description of the error"
+                },
+                {
+                   "key":"errorManagement",
+                   "name":"Error management",
+                   "required":true,
+                   "type":"radiogroup",
+                   "defaultValue":"auto",
+                   "radios":[
+                      {
+                         "value":"auto",
+                         "label":"Automatic error handling",
+                         "disabled":false
+                      },
+                      {
+                         "value":"manual",
+                         "label":"Manual error handling",
+                         "disabled":false
+                      }
+                   ],
+                   "description":"Error handler type of processing errors raised by this node, either automatically or manually."
+                }
+             ]
+          }
+       },
+       {
+          "typeId":"34",
+          "name":"Finish Successfully",
+          "card":{
+             "name":"Finish Successfully",
+             "group":"Response",
+             "typeId":"34",
+             "description":"Terminates execution of the service successfully. It runs when all the input link points are active.",
+             "multiInput":false,
+             "multiOutput":false,
+             "restrictedInputTypes":[
+                "trigger"
+             ],
+             "noCustomProps":true,
+             "inputs":[
+                {
+                   "name":"trigger",
+                   "iname":"trigger",
+                   "type":"trigger",
+                   "description":"Triggers the execution of the node"
+                }
+             ],
+             "outputs":[
+                
+             ],
+             "hideForEndpoint":true,
+             "config":[
+                
+             ]
+          }
+       },
+       {
+          "typeId":"35",
+          "name":"Finish with Errors",
+          "card":{
+             "name":"Finish with Errors",
+             "group":"Response",
+             "typeId":"35",
+             "description":"Terminates execution of the service and logs the provided error message(s). It runs when all the input link points are active.",
+             "multiInput":false,
+             "multiOutput":false,
+             "restrictedInputTypes":[
+                "trigger"
+             ],
+             "noCustomProps":true,
+             "inputs":[
+                {
+                   "name":"error",
+                   "iname":"error",
+                   "type":"value",
+                   "description":"Triggers the execution of the node, provides either a single or a list of error messages that will be logged"
+                }
+             ],
+             "outputs":[
+                
+             ],
+             "hideForEndpoint":true,
+             "config":[
+                
+             ]
+          }
+       },
+       {
+          "typeId":"36",
+          "name":"Redirect to URL",
+          "card":{
+             "name":"Redirect to URL",
+             "group":"Response",
+             "typeId":"36",
+             "description":"Sends a special redirect response to a request with a specific URL to redirect to. It runs when all the input link points are active.",
+             "multiInput":true,
+             "multiOutput":false,
+             "inputs":[
+                {
+                   "name":"object",
+                   "iname":"object",
+                   "type":"object",
+                   "description":"Input object of the node"
+                }
+             ],
+             "outputs":[
+                
+             ],
+             "hideForMessaging":true,
+             "hideForTasks":true,
+             "config":[
+                {
+                   "key":"redirectURL",
+                   "name":"Redirect URL",
+                   "required":true,
+                   "type":"expression",
+                   "defaultValue":null,
+                   "props":{
+                      "returnFieldType":null,
+                      "returnType":4,
+                      "returnTypeErrText":null,
+                      "showFunctions":true,
+                      "typeFilter":null,
+                      "showFavorites":false,
+                      "showHeader":false,
+                      "hideContext":null
+                   },
+                   "description":"The URL to redirect to."
+                },
+                {
+                   "key":"queryParams",
+                   "name":"Query string parameters",
+                   "required":false,
+                   "type":"key_value_pairs",
+                   "defaultValue":[
+                      
+                   ],
+                   "description":"Name-value pairs that will be set as the query string parameters of the redirect URL."
+                }
+             ]
+          }
+       },
+       {
+          "typeId":"37",
+          "name":"Return Error Response",
+          "card":{
+             "name":"Return Error Response",
+             "group":"Response",
+             "typeId":"37",
+             "description":"Terminates execution of the service and returns the provided (if any) input objects and object lists in the response body with an HTTP error response code. It runs when all the input link points are active.",
+             "multiInput":true,
+             "multiOutput":false,
+             "restrictedInputTypes":[
+                "trigger"
+             ],
+             "inputs":[
+                {
+                   "name":"trigger",
+                   "iname":"trigger",
+                   "type":"trigger",
+                   "description":"Triggers the execution of the node"
+                }
+             ],
+             "outputs":[
+                
+             ],
+             "hideForMessaging":true,
+             "hideForTasks":true,
+             "config":[
+                {
+                   "key":"singleObjectReturn",
+                   "name":"Return preference",
+                   "required":true,
+                   "type":"checkbox",
+                   "defaultValue":true,
+                   "checkbox":{
+                      "value":"auto",
+                      "label":"Return object without using its name as the key",
+                      "disabled":false
+                   },
+                   "description":"If there is only one object connected to this node then return its values as it is without using its name as the key"
+                },
+                {
+                   "key":"errorCode",
+                   "name":"HTTP error code",
+                   "required":true,
+                   "type":"select",
+                   "defaultValue":400,
+                   "options":[
+                      {
+                         "key":400,
+                         "name":"400 - Bad Request"
+                      },
+                      {
+                         "key":401,
+                         "name":"401 - Unauthorized"
+                      },
+                      {
+                         "key":403,
+                         "name":"403 - Forbidden"
+                      },
+                      {
+                         "key":404,
+                         "name":"404 - Not Found"
+                      },
+                      {
+                         "key":405,
+                         "name":"405 - Method Not Allowed"
+                      },
+                      {
+                         "key":406,
+                         "name":"406 - Not Acceptable"
+                      },
+                      {
+                         "key":408,
+                         "name":"408 - Request Timeout"
+                      },
+                      {
+                         "key":409,
+                         "name":"408 - Conflict"
+                      },
+                      {
+                         "key":415,
+                         "name":"415 - Unsupported Media Type"
+                      },
+                      {
+                         "key":422,
+                         "name":"422 - Unprocessable Entity"
+                      }
+                   ],
+                   "description":"The 4xx class of HTTP status code that will be returned as the response"
+                },
+                {
+                   "key":"omitted",
+                   "name":"Omitted fields",
+                   "required":false,
+                   "type":"list",
+                   "defaultValue":[
+                      
+                   ],
+                   "description":"List of excluded fields in response"
+                }
+             ]
+          }
+       },
+       {
+          "typeId":"38",
+          "name":"Return File Response",
+          "card":{
+             "name":"Return File Response",
+             "group":"Response",
+             "typeId":"38",
+             "description":"Terminates execution of the service and returns the provided file either inline or as an attachment of the response body with a response code of 200 (OK). It runs when the input file is active.",
+             "multiInput":false,
+             "multiOutput":false,
+             "inputs":[
+                {
+                   "name":"file",
+                   "iname":"file",
+                   "type":"object",
+                   "description":"The file object that will be returned"
+                }
+             ],
+             "outputs":[
+                
+             ],
+             "hideForMessaging":true,
+             "hideForTasks":true,
+             "config":[
+                {
+                   "key":"disposition",
+                   "name":"File disposition type",
+                   "required":true,
+                   "type":"radiogroup",
+                   "defaultValue":"public-inline",
+                   "radios":[
+                      {
+                         "value":"public-inline",
+                         "label":"<bold>Inline file</bold> - file displayed as normal",
+                         "disabled":false
+                      },
+                      {
+                         "value":"public-attachment",
+                         "label":"<bold>Attachment file</bold> - file downloaded as an attachment",
+                         "disabled":false
+                      }
+                   ],
+                   "description":"Inline indicates that the entity should be immediately displayed to the user, whereas attachment means that the user should take additional action to view the entity."
+                }
+             ]
+          }
+       },
+       {
+          "typeId":"39",
+          "name":"Return HTML Response",
+          "card":{
+             "name":"Return HTML Response",
+             "group":"Response",
+             "typeId":"39",
+             "description":"Returns the specified HTML to the calling party with an HTTP success response code of 200 (OK). It runs when all the input link points are active.",
+             "multiInput":true,
+             "multiOutput":false,
+             "inputs":[
+                {
+                   "name":"object",
+                   "iname":"object",
+                   "type":"object",
+                   "description":"Input object of the node"
+                }
+             ],
+             "outputs":[
+                
+             ],
+             "hideForMessaging":true,
+             "hideForTasks":true,
+             "config":[
+                {
+                   "key":"responseCode",
+                   "name":"HTTP response code",
+                   "required":true,
+                   "type":"select",
+                   "defaultValue":200,
+                   "options":[
+                      {
+                         "key":200,
+                         "name":"200 - OK"
+                      },
+                      {
+                         "key":400,
+                         "name":"400 - Bad Request"
+                      },
+                      {
+                         "key":401,
+                         "name":"401 - Unauthorized"
+                      },
+                      {
+                         "key":403,
+                         "name":"403 - Forbidden"
+                      },
+                      {
+                         "key":404,
+                         "name":"404 - Not Found"
+                      },
+                      {
+                         "key":405,
+                         "name":"405 - Method Not Allowed"
+                      },
+                      {
+                         "key":406,
+                         "name":"406 - Not Acceptable"
+                      },
+                      {
+                         "key":408,
+                         "name":"408 - Request Timeout"
+                      },
+                      {
+                         "key":409,
+                         "name":"408 - Conflict"
+                      },
+                      {
+                         "key":415,
+                         "name":"415 - Unsupported Media Type"
+                      },
+                      {
+                         "key":422,
+                         "name":"422 - Unprocessable Entity"
+                      }
+                   ],
+                   "description":"The class of HTTP status code that will be returned as the response"
+                },
+                {
+                   "key":"html",
+                   "name":"HTML response",
+                   "required":false,
+                   "type":"edit_html",
+                   "defaultValue":"<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<title>Basic Response Template</title>\n</head>\n<body>\n</body>\n</html>",
+                   "description":"The HTML document that will be returned to the calling party",
+                   "editDialogType":"html"
+                }
+             ]
+          }
+       },
+       {
+          "typeId":"40",
+          "name":"Return Response",
+          "card":{
+             "name":"Return Response",
+             "group":"Response",
+             "typeId":"40",
+             "description":"Terminates execution of the service and returns the provided input object and object lists in the response body with the specified HTTP response code. It runs when the response link point is active.",
+             "multiInput":false,
+             "multiOutput":false,
+             "restrictedInputTypes":[
+                "trigger"
+             ],
+             "inputs":[
+                {
+                   "name":"response",
+                   "iname":"response",
+                   "type":"value",
+                   "description":"Object or object list that will be returned in response body"
+                }
+             ],
+             "outputs":[
+                
+             ],
+             "hideForMessaging":true,
+             "hideForTasks":true,
+             "config":[
+                {
+                   "key":"responseCode",
+                   "name":"HTTP response code",
+                   "required":true,
+                   "type":"select",
+                   "defaultValue":200,
+                   "options":[
+                      {
+                         "key":200,
+                         "name":"200 - OK"
+                      },
+                      {
+                         "key":400,
+                         "name":"400 - Bad Request"
+                      },
+                      {
+                         "key":401,
+                         "name":"401 - Unauthorized"
+                      },
+                      {
+                         "key":403,
+                         "name":"403 - Forbidden"
+                      },
+                      {
+                         "key":404,
+                         "name":"404 - Not Found"
+                      },
+                      {
+                         "key":405,
+                         "name":"405 - Method Not Allowed"
+                      },
+                      {
+                         "key":406,
+                         "name":"406 - Not Acceptable"
+                      },
+                      {
+                         "key":408,
+                         "name":"408 - Request Timeout"
+                      },
+                      {
+                         "key":409,
+                         "name":"408 - Conflict"
+                      },
+                      {
+                         "key":415,
+                         "name":"415 - Unsupported Media Type"
+                      },
+                      {
+                         "key":422,
+                         "name":"422 - Unprocessable Entity"
+                      },
+                      {
+                         "key":500,
+                         "name":"500 - Internal server error"
+                      }
+                   ],
+                   "description":"The class of HTTP status code that will be returned as the response"
+                }
+             ]
+          }
+       },
+       {
+          "typeId":"41",
+          "name":"Return Success Response",
+          "card":{
+             "name":"Return Success Response",
+             "group":"Response",
+             "typeId":"41",
+             "description":"Terminates execution of the service and returns the provided (if any) input objects and object lists in the response body with an HTTP success response code of 200 (OK). It runs when all the input link points are active.",
+             "multiInput":true,
+             "multiOutput":false,
+             "restrictedInputTypes":[
+                "trigger"
+             ],
+             "inputs":[
+                {
+                   "name":"trigger",
+                   "iname":"trigger",
+                   "type":"trigger",
+                   "description":"Triggers the execution of the node"
+                }
+             ],
+             "outputs":[
+                
+             ],
+             "hideForMessaging":true,
+             "hideForTasks":true,
+             "config":[
+                {
+                   "key":"singleObjectReturn",
+                   "name":"Return preference",
+                   "required":true,
+                   "type":"checkbox",
+                   "defaultValue":true,
+                   "checkbox":{
+                      "value":"auto",
+                      "label":"Return object without using its name as the key",
+                      "disabled":false
+                   },
+                   "description":"If there is only one object connected to this node then return its values as it is without using its name as the key"
+                },
+                {
+                   "key":"omitted",
+                   "name":"Omitted fields",
+                   "required":false,
+                   "type":"list",
+                   "defaultValue":[
+                      
+                   ],
+                   "description":"List of excluded fields in response"
+                }
+             ]
+          }
+       }
+    ]
+ }
+  ]
+}
