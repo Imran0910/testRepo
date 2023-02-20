@@ -3,7 +3,7 @@
   "backgroundTaskTemplates":[
         {
            "id":1,
-           "name":"Database Request",
+           "name":"Database Request111",
            "icon":"<svg width='24' height='26' viewBox='0 0 24 26' fill='none' xmlns='http://www.w3.org/2000/svg'><path d='M1.33337 6.33333V19.6667C1.33337 22.6122 6.109 25 12 25C17.8911 25 22.6667 22.6122 22.6667 19.6667V6.33333M1.33337 6.33333C1.33337 9.27885 6.109 11.6667 12 11.6667C17.8911 11.6667 22.6667 9.27885 22.6667 6.33333M1.33337 6.33333C1.33337 3.38781 6.109 1 12 1C17.8911 1 22.6667 3.38781 22.6667 6.33333M22.6667 13C22.6667 15.9455 17.8911 18.3333 12 18.3333C6.109 18.3333 1.33337 15.9455 1.33337 13' stroke='white' stroke-width='2'/></svg>",
            "description":"Perform database request methods",
            "properties":[
