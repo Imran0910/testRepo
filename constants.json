@@ -1,5 +1,135 @@
 {
   "acceptedImageExtensions": ".jpeg, .png, .jpg, .gif, .ico, .cur, .jfif, .pjpeg, .pjp, .svg",
+  "backgroundTaskTemplates":[
+        {
+           "id":1,
+           "name":"Database Request",
+           "icon":"<svg width='24' height='26' viewBox='0 0 24 26' fill='none' xmlns='http://www.w3.org/2000/svg'><path d='M1.33337 6.33333V19.6667C1.33337 22.6122 6.109 25 12 25C17.8911 25 22.6667 22.6122 22.6667 19.6667V6.33333M1.33337 6.33333C1.33337 9.27885 6.109 11.6667 12 11.6667C17.8911 11.6667 22.6667 9.27885 22.6667 6.33333M1.33337 6.33333C1.33337 3.38781 6.109 1 12 1C17.8911 1 22.6667 3.38781 22.6667 6.33333M22.6667 13C22.6667 15.9455 17.8911 18.3333 12 18.3333C6.109 18.3333 1.33337 15.9455 1.33337 13' stroke='white' stroke-width='2'/></svg>",
+           "description":"Perform database request methods",
+           "properties":[
+              {
+                 "name":"statement",
+                 "label":"Choose Statement",
+                 "interfaceType":"select",
+                 "options":[
+                    {
+                       "value":"",
+                       "name":"Select Satement"
+                    },
+                    {
+                       "value":1,
+                       "name":"Get All Records"
+                    },
+                    {
+                       "value":6,
+                       "name":"Add Record"
+                    }
+                 ],
+                 "value":""
+              },
+              {
+                 "name":"collection",
+                 "label":"Choose Collection",
+                 "interfaceType":"select",
+                 "options":[
+                    "Select collection"
+                 ],
+                 "value":""
+              },
+              {
+                 "name":"inputs",
+                 "label":"Inputs",
+                 "interfaceType":"inputForm",
+                 "options":[
+                    {
+                       "id":1,
+                       "name":"Select Property",
+                       "schema":{
+                          "key":""
+                       }
+                    }
+                 ],
+                 "value":""
+              }
+           ]
+        },
+        {
+            "id":5,
+            "name":"Custom Functions",
+            "icon":"<svg width='26' height='26' viewBox='0 0 26 26' fill='none' xmlns='http://www.w3.org/2000/svg'><path d='M14.3333 18.3333H13V13H11.6667M13 7.66667H13.0133M25 13C25 19.6274 19.6274 25 13 25C6.37258 25 1 19.6274 1 13C1 6.37258 6.37258 1 13 1C19.6274 1 25 6.37258 25 13Z' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/></svg>",
+            "description":"Start from scratch and create functions",
+            "properties":[
+               {
+                  "name":"customFunction",
+                  "interfaceType":"aceEditor",
+                  "value":""
+               }
+            ]
+         },
+         
+        {
+           "id":8,
+           "name":"External API Request",
+           "icon":"<svg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'><path d='M1.33337 17.3327L1.33337 18.666C1.33337 20.8752 3.12424 22.666 5.33337 22.666L18.6667 22.666C20.8758 22.666 22.6667 20.8752 22.6667 18.666L22.6667 17.3327M17.3334 11.9993L12 17.3327M12 17.3327L6.66671 11.9993M12 17.3327L12 1.33268' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/></svg>",
+           "description":"Access and process and external endpoint",
+           "properties":[
+              {
+                 "name":"url",
+                 "label":"URL",
+                 "interfaceType":"input"
+              },
+              {
+                 "name":"method",
+                 "label":"Method",
+                 "interfaceType":"select",
+                 "options":[
+                    {
+                       "name":"Get",
+                       "value":"get"
+                    },
+                    {
+                       "name":"Post",
+                       "value":"post"
+                    },
+                    {
+                       "name":"Patch",
+                       "value":"patch"
+                    },
+                    {
+                       "name":"Put",
+                       "value":"put"
+                    },
+                    {
+                       "name":"Delete",
+                       "value":"delete"
+                    }
+                 ],
+                 "value":"get"
+              },
+              {
+                 "name":"params",
+                 "label":"Params",
+                 "interfaceType":"keyValueForm"
+              },
+              {
+                 "name":"headers",
+                 "label":"Headers",
+                 "interfaceType":"keyValueForm"
+              },
+              {
+                 "name":"body",
+                 "label":"Body",
+                 "interfaceType":"aceEditor",
+                 "value":""
+              },
+              {
+                 "name":"timeOut",
+                 "label":"Timeout",
+                 "interfaceType":"number"
+              }
+           ]
+        }
+     ],
   "predefinedCollection":[
        {    
           "name":"Contact",
