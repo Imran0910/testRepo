@@ -216,7 +216,7 @@
                    "isKey":false
                 },
                 "schema":{
-                   "defaultValue":"new Date()",
+                   "defaultValue":"",
                    "key":"created_at",
                    "type":"TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP"
                 }
