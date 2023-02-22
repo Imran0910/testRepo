@@ -436,7 +436,7 @@
                    "isUnique":false
                 },
                 "schema":{
-                   "defaultValue":"new Date()",
+                   "defaultValue":"",
                    "type":"TIMESTAMP(3)",
                    "key":"start_date"
                 }
@@ -455,7 +455,7 @@
                    "isKey":false
                 },
                 "schema":{
-                   "defaultValue":"new Date()",
+                   "defaultValue":"",
                    "type":"TIMESTAMP(3)",
                    "key":"end_date"
                 }
@@ -493,7 +493,7 @@
                    "isKey":false
                 },
                 "schema":{
-                   "defaultValue":"new Date()",
+                   "defaultValue":"",
                    "type":"TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP",
                    "key":"created_at"
                 }
@@ -606,7 +606,7 @@
                    "isKey":false
                 },
                 "schema":{
-                   "defaultValue":"new Date()",
+                   "defaultValue":"",
                    "key":"created_at",
                    "type":"TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP"
                 }
@@ -665,7 +665,7 @@
                 },
                 "schema":{
                    "key":"created_at",
-                   "defaultValue":"new Date()",
+                   "defaultValue":"",
                    "type":"TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP"
                 }
              }
@@ -761,7 +761,7 @@
                 },
                 "schema":{
                    "key":"created_at",
-                   "defaultValue":"new Date()",
+                   "defaultValue":"",
                    "type":"TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP"
                 }
              }
