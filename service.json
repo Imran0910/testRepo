@@ -12,6 +12,7 @@
          "multiInput":false,
          "multiOutput":false,
          "errorManagement":false,
+         "enabled":true,
          "inputs":[
             
          ],
@@ -231,6 +232,7 @@
             "multiOutput": false,
             "restrictedInputTypes": ["list"],
             "errorManagement": true,
+            "enabled":true,
             "inputs": [
               {
                 "name": "input",
@@ -866,6 +868,7 @@
             "multiOutput": false,
             "restrictedInputTypes": ["list"],
             "errorManagement": true,
+            "enabled":true,
             "inputs": [
               {
                 "name": "inputObject",
@@ -1837,6 +1840,7 @@
             "multiOutput": false,
             "restrictedInputTypes": ["list"],
             "errorManagement": true,
+            "enabled":true,
             "inputs": [
               {
                 "name": "inputObject",
@@ -3830,6 +3834,7 @@
                "multiInput":false,
                "multiOutput":false,
                "errorManagement":true,
+               "enabled":true,
                "inputs":[
                   {
                      "name":"inputObject",
@@ -4385,6 +4390,7 @@
              "description":"Terminates execution of the service and returns the provided (if any) input objects and object lists in the response body with an HTTP error response code. It runs when all the input link points are active.",
              "multiInput":true,
              "multiOutput":false,
+             "enabled":true,
              "restrictedInputTypes":[
                 "trigger"
              ],
@@ -4713,6 +4719,7 @@
              "description":"Terminates execution of the service and returns the provided (if any) input objects and object lists in the response body with an HTTP success response code of 200 (OK). It runs when all the input link points are active.",
              "multiInput":true,
              "multiOutput":false,
+             "enabled":true,
              "restrictedInputTypes":[
                 "trigger"
              ],
